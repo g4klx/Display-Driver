@@ -18,21 +18,7 @@
 
 #include "Display.h"
 #include "Defines.h"
-#include "ModemSerialPort.h"
-#include "UARTController.h"
-#include "TFTSurenoo.h"
-#include "LCDproc.h"
-#include "Nextion.h"
-#include "Conf.h"
 #include "Log.h"
-
-#if defined(HD44780)
-#include "HD44780.h"
-#endif
-
-#if defined(OLED)
-#include "OLED.h"
-#endif
 
 #include <cstdio>
 #include <cassert>
@@ -135,7 +121,7 @@ void CDisplay::clearDStar()
 	}
 }
 
-void CDisplay::writeDMR(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void CDisplay::writeDMR(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (slotNo == 1U) {
 		m_timer1.start();
@@ -144,6 +130,7 @@ void CDisplay::writeDMR(unsigned int slotNo, const std::string& src, bool group,
 		m_timer2.start();
 		m_mode2 = MODE_IDLE;
 	}
+
 	writeDMRInt(slotNo, src, group, dst, type);
 }
 
@@ -455,157 +442,3 @@ void CDisplay::writeM17BERInt(float ber)
 {
 }
 
-CDisplay* CDisplay::createDisplay(const CConf& conf)
-{
-	CDisplay *display = NULL;
-
-	std::string type = conf.getDisplay();
-
-	LogInfo("Display Parameters");
-	LogInfo("    Type: %s", type.c_str());
-
-	if (type == "TFT Surenoo") {
-		std::string port        = conf.getTFTSerialPort();
-		unsigned int brightness = conf.getTFTSerialBrightness();
-
-		LogInfo("    Port: %s", port.c_str());
-		LogInfo("    Brightness: %u", brightness);
-
-		ISerialPort* serial = NULL;
-		if (port == "modem")
-			serial = new CModemSerialPort;
-		else
-			serial = new CUARTController(port, 115200U);
-
-		display = new CTFTSurenoo(conf.getCallsign(), conf.getId(), conf.getDuplex(), serial, brightness);
-	} else if (type == "Nextion") {
-		std::string port            = conf.getNextionPort();
-		unsigned int brightness     = conf.getNextionBrightness();
-		bool displayClock           = conf.getNextionDisplayClock();
-		bool utc                    = conf.getNextionUTC();
-		unsigned int idleBrightness = conf.getNextionIdleBrightness();
-		unsigned int screenLayout   = conf.getNextionScreenLayout();
-		bool displayTempInF         = conf.getNextionTempInFahrenheit();
-
-		LogInfo("    Port: %s", port.c_str());
-		LogInfo("    Brightness: %u", brightness);
-		LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
-		if (displayClock)
-			LogInfo("    Display UTC: %s", utc ? "yes" : "no");
-		LogInfo("    Idle Brightness: %u", idleBrightness);
-		LogInfo("    Temperature in Fahrenheit: %s ", displayTempInF ? "yes" : "no");
- 
-		switch (screenLayout) {
-		case 0U:
-			LogInfo("    Screen Layout: G4KLX (Default)");
-			break;
-		case 2U:
-			LogInfo("    Screen Layout: ON7LDS");
-			break;
-		case 3U:
-			LogInfo("    Screen Layout: DIY by ON7LDS");
-			break;
-		case 4U:
-			LogInfo("    Screen Layout: DIY by ON7LDS (High speed)");
-			break;
-		default:
-			LogInfo("    Screen Layout: %u (Unknown)", screenLayout);
-			break;
-		}
-
-		if (port == "modem") {
-			ISerialPort* serial = new CModemSerialPort;
-			display = new CNextion(conf.getCallsign(), conf.getId(), conf.getDuplex(), serial, brightness, displayClock, utc, idleBrightness, screenLayout, displayTempInF);
-		} else {
-			unsigned int baudrate = 9600U;
-			if (screenLayout == 4U)
-				baudrate = 115200U;
-			
-			LogInfo("    Display baudrate: %u ", baudrate);
-			ISerialPort* serial = new CUARTController(port, baudrate);
-			display = new CNextion(conf.getCallsign(), conf.getId(), conf.getDuplex(), serial, brightness, displayClock, utc, idleBrightness, screenLayout, displayTempInF);
-		}
-	} else if (type == "LCDproc") {
-		std::string address       = conf.getLCDprocAddress();
-		unsigned int port         = conf.getLCDprocPort();
-		unsigned int localPort    = conf.getLCDprocLocalPort();
-		bool displayClock         = conf.getLCDprocDisplayClock();
-		bool utc                  = conf.getLCDprocUTC();
-		bool dimOnIdle            = conf.getLCDprocDimOnIdle();
-
-		LogInfo("    Address: %s", address.c_str());
-		LogInfo("    Port: %u", port);
-
-		if (localPort == 0U)
-			LogInfo("    Local Port: random");
-		else
-			LogInfo("    Local Port: %u", localPort);
-
-		LogInfo("    Dim Display on Idle: %s", dimOnIdle ? "yes" : "no");
-		LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
-
-		if (displayClock)
-			LogInfo("    Display UTC: %s", utc ? "yes" : "no");
-
-		display = new CLCDproc(conf.getCallsign(), conf.getId(), conf.getDuplex(), address, port, localPort, displayClock, utc, dimOnIdle);
-#if defined(HD44780)
-	} else if (type == "HD44780") {
-		unsigned int rows              = conf.getHD44780Rows();
-		unsigned int columns           = conf.getHD44780Columns();
-		std::vector<unsigned int> pins = conf.getHD44780Pins();
-		unsigned int i2cAddress        = conf.getHD44780i2cAddress();
-		bool pwm                       = conf.getHD44780PWM();
-		unsigned int pwmPin            = conf.getHD44780PWMPin();
-		unsigned int pwmBright         = conf.getHD44780PWMBright();
-		unsigned int pwmDim            = conf.getHD44780PWMDim();
-		bool displayClock              = conf.getHD44780DisplayClock();
-		bool utc                       = conf.getHD44780UTC();
-
-		if (pins.size() == 6U) {
-			LogInfo("    Rows: %u", rows);
-			LogInfo("    Columns: %u", columns);
-
-#if defined(ADAFRUIT_DISPLAY) || defined(PCF8574_DISPLAY)
-			LogInfo("    Device Address: %#x", i2cAddress);
-#else
-			LogInfo("    Pins: %u,%u,%u,%u,%u,%u", pins.at(0U), pins.at(1U), pins.at(2U), pins.at(3U), pins.at(4U), pins.at(5U));
-#endif
-
-			LogInfo("    PWM Backlight: %s", pwm ? "yes" : "no");
-			if (pwm) {
-				LogInfo("    PWM Pin: %u", pwmPin);
-				LogInfo("    PWM Bright: %u", pwmBright);
-				LogInfo("    PWM Dim: %u", pwmDim);
-			}
-
-			LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
-			if (displayClock)
-				LogInfo("    Display UTC: %s", utc ? "yes" : "no");
-
-			display = new CHD44780(conf.getCallsign(), conf.getId(), conf.getDuplex(), rows, columns, pins, i2cAddress, pwm, pwmPin, pwmBright, pwmDim, displayClock, utc);
-		}
-#endif
-#if defined(OLED)
-	} else if (type == "OLED") {
-	        unsigned char type       = conf.getOLEDType();
-	        unsigned char brightness = conf.getOLEDBrightness();
-	        bool          invert     = conf.getOLEDInvert();
-	        bool          scroll     = conf.getOLEDScroll();
-		bool          rotate     = conf.getOLEDRotate();
-		bool          logosaver  = conf.getOLEDLogoScreensaver();
-
-		display = new COLED(conf.getCallsign(), conf.getId(), conf.getDuplex(), type, brightness, invert, scroll, rotate, logosaver);
-#endif
-	} else {
-		LogError("No valid display found");
-		return NULL;
-	}
-
-	bool ret = display->open();
-	if (!ret) {
-		delete display;
-		display = NULL;
-	}
-
-	return display;
-}

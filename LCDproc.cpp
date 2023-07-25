@@ -324,7 +324,7 @@ void CLCDproc::clearDStarInt()
 
 // LED 1 Green 1 Red 16 Yellow 17
 
-void CLCDproc::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void CLCDproc::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (!m_dmr) {
 		m_clockDisplayTimer.stop();          // Stop the clock display
@@ -352,23 +352,24 @@ void CLCDproc::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 			socketPrintf(m_socketfd, "widget_set DMR Mode 1 1 DMR");
 
 		if (slotNo == 1U)
-			socketPrintf(m_socketfd, "widget_set DMR Slot1 3 %u %u %u h 3 \"%s > %s%s\"", m_rows / 2, m_cols - 1, m_rows / 2, src.c_str(), group ? "TG" : "", dst.c_str());
+			socketPrintf(m_socketfd, "widget_set DMR Slot1 3 %u %u %u h 3 \"%s > %s%u\"", m_rows / 2, m_cols - 1, m_rows / 2, src.c_str(), group ? "TG" : "", dst);
 		else
-			socketPrintf(m_socketfd, "widget_set DMR Slot2 3 %u %u %u h 3 \"%s > %s%s\"", m_rows / 2 + 1, m_cols - 1, m_rows / 2 + 1, src.c_str(), group ? "TG" : "", dst.c_str());
+			socketPrintf(m_socketfd, "widget_set DMR Slot2 3 %u %u %u h 3 \"%s > %s%u\"", m_rows / 2 + 1, m_cols - 1, m_rows / 2 + 1, src.c_str(), group ? "TG" : "", dst);
 	} else {
 		socketPrintf(m_socketfd, "widget_set DMR Mode 1 1 DMR");
 
 		if (m_rows == 2U) {
-			socketPrintf(m_socketfd, "widget_set DMR Slot1 1 2 %u 2 h 3 \"%s > %s%s\"", m_cols - 1, src.c_str(), group ? "TG" : "", dst.c_str());
+			socketPrintf(m_socketfd, "widget_set DMR Slot1 1 2 %u 2 h 3 \"%s > %s%u\"", m_cols - 1, src.c_str(), group ? "TG" : "", dst);
 		} else {
 			socketPrintf(m_socketfd, "widget_set DMR Slot1 1 2 %u 2 h 3 \"%s >\"", m_cols - 1, src.c_str());
-			socketPrintf(m_socketfd, "widget_set DMR Slot2 1 3 %u 3 h 3 \"%s%s\"", m_cols - 1, group ? "TG" : "", dst.c_str());
+			socketPrintf(m_socketfd, "widget_set DMR Slot2 1 3 %u 3 h 3 \"%s%u\"", m_cols - 1, group ? "TG" : "", dst);
 		}
 	}
 	socketPrintf(m_socketfd, "output 16"); // Set LED1 color red
+
 	m_dmr = true;
-	m_rssiCount1 = 0U; 
-  m_rssiCount2 = 0U; 
+	m_rssiCount1 = 0U;
+	m_rssiCount2 = 0U; 
 } 
  
 void CLCDproc::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi) 

@@ -48,7 +48,7 @@ protected:
 	virtual void writeDStarBERInt(float ber);
 	virtual void clearDStarInt();
 
-	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type);
+	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
 	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi);
 	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias, const std::string& type);
 	virtual void writeDMRBERInt(unsigned int slotNo, float ber);

@@ -509,7 +509,7 @@ void CHD44780::clearDStarInt()
 	::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
 }
 
-void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (!m_dmr) {
 		m_clockDisplayTimer.stop();          // Stop the clock display
@@ -561,7 +561,6 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 #ifdef ADAFRUIT_DISPLAY
 	adafruitLCDColour(AC_RED);
 #endif
-
 	if (m_duplex) {
 		if (m_rows > 2U) {
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
@@ -572,10 +571,10 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 		if (slotNo == 1U) {
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
 			::lcdPuts(m_fd, "1 ");
-			if (m_cols > 16 )
-				::sprintf(m_buffer1, "%s > %s%s%s", src.c_str(), group ? "TG" : "", dst.c_str(), DEADSPACE);
+			if (m_cols > 16U)
+				::sprintf(m_buffer1, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE);
 			else
-				::sprintf(m_buffer1, "%s>%s%s", src.c_str(), dst.c_str(), DEADSPACE);
+				::sprintf(m_buffer1, "%s>%u%s", src.c_str(), dst, DEADSPACE);
 			::lcdPrintf(m_fd, "%.*s", m_cols - 2U, m_buffer1);
 
 			::lcdPosition(m_fd, m_cols - 3U, (m_rows / 2) - 1);
@@ -595,9 +594,9 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 			::lcdPuts(m_fd, "2 ");
 
 			if (m_cols > 16)
-				::sprintf(m_buffer2, "%s > %s%s%s", src.c_str(), group ? "TG" : "", dst.c_str(), DEADSPACE);
+				::sprintf(m_buffer2, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE);
 			else
-				::sprintf(m_buffer2, "%s>%s%s", src.c_str(), dst.c_str(), DEADSPACE);
+				::sprintf(m_buffer2, "%s>%u%s", src.c_str(), dst, DEADSPACE);
 			::lcdPrintf(m_fd, "%.*s", m_cols - 2U, m_buffer2);
 
 			::lcdPosition(m_fd, m_cols - 3U, (m_rows / 2));
@@ -633,7 +632,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 
 		::lcdPosition(m_fd, 0, (m_rows / 2));
 		::lcdPutchar(m_fd, 1);
-		::sprintf(m_buffer2, " %s%s%s", group ? "TG" : "", dst.c_str(), DEADSPACE);
+		::sprintf(m_buffer2, " %s%u%s", group ? "TG" : "", dst), DEADSPACE);
 		::lcdPrintf(m_fd, "%.*s", m_cols - 4U, m_buffer2);
 		::lcdPosition(m_fd, m_cols - 1U, (m_rows / 2));
 

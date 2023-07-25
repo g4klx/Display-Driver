@@ -19,20 +19,31 @@
 #include "DisplayDriver.h"
 #include "UARTController.h"
 #include "MQTTConnection.h"
-#include "Version.h"
+#include "UARTController.h"
+#include "TFTSurenoo.h"
 #include "StopWatch.h"
+#include "LCDproc.h"
+#include "Nextion.h"
+#include "Version.h"
 #include "Defines.h"
 #include "Thread.h"
 #include "Utils.h"
+#include "Conf.h"
 #include "Log.h"
 #include "GitVersion.h"
+
+#if defined(HD44780)
+#include "HD44780.h"
+#endif
+
+#if defined(OLED)
+#include "OLED.h"
+#endif
 
 #include <cstdio>
 #include <vector>
 
 #include <cstdlib>
-
-#include <nlohmann/json.hpp>
 
 #if !defined(_WIN32) && !defined(_WIN64)
 #include <sys/types.h>
@@ -130,7 +141,8 @@ int main(int argc, char** argv)
 
 CDisplayDriver::CDisplayDriver(const std::string& confFile) :
 m_conf(confFile),
-m_display(NULL)
+m_display(NULL),
+m_msp(NULL)
 {
 }
 
@@ -207,14 +219,17 @@ int CDisplayDriver::run()
 #endif
 	::LogInitialise(m_conf.getLogDisplayLevel(), m_conf.getLogMQTTLevel());
 
+	const std::string displayName = m_conf.getMMDVMName() + "/display-out";
+	const std::string jsonName    = m_conf.getMMDVMName() + "/json";
+
 	std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>> subscriptions;
-	// subscriptions.push_back(std::make_pair("display", CMMDVMHost::onDisplay));
-	// subscriptions.push_back(std::make_pair("command", CMMDVMHost::onCommand));
+	subscriptions.push_back(std::make_pair(displayName, CDisplayDriver::onDisplay));
+	subscriptions.push_back(std::make_pair(jsonName,    CDisplayDriver::onJSON));
 
 	m_mqtt = new CMQTTConnection(m_conf.getMQTTHost(), m_conf.getMQTTPort(), m_conf.getMQTTName(), subscriptions, m_conf.getMQTTKeepalive());
 	ret = m_mqtt->open();
 	if (!ret) {
-		::fprintf(stderr, "MMDVMHost: unable to start the MQTT Publisher\n");
+		::fprintf(stderr, "DisplayDriver: unable to start the MQTT Publisher\n");
 		delete m_mqtt;
 		return 1;
 	}
@@ -230,8 +245,8 @@ int CDisplayDriver::run()
 
 	writeJSONMessage("DisplayDriver is starting");
 
-	m_display = CDisplay::createDisplay(m_conf);
-	if (m_display == NULL)
+	ret = createDisplay();
+	if (!ret)
 		return 1;
 
 	CStopWatch stopWatch;
@@ -243,8 +258,8 @@ int CDisplayDriver::run()
 
 		m_display->clock(ms);
 
-		if (ms < 5U)
-			CThread::sleep(5U);
+		if (ms < 10U)
+			CThread::sleep(10U);
 	}
 
 	LogInfo("DisplayDriver is stopping");
@@ -256,6 +271,159 @@ int CDisplayDriver::run()
 	return 0;
 }
 
+bool CDisplayDriver::createDisplay()
+{
+	std::string type = m_conf.getDisplay();
+
+	LogInfo("Display Parameters");
+	LogInfo("    Type: %s", type.c_str());
+
+	if (type == "TFT Surenoo") {
+		std::string port        = m_conf.getTFTSerialPort();
+		unsigned int brightness = m_conf.getTFTSerialBrightness();
+
+		LogInfo("    Port: %s", port.c_str());
+		LogInfo("    Brightness: %u", brightness);
+
+		ISerialPort* serial = NULL;
+		if (port == "modem")
+			serial = m_msp = new CModemSerialPort(m_conf.getMMDVMName());
+		else
+			serial = new CUARTController(port, 115200U);
+
+		m_display = new CTFTSurenoo(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), serial, brightness);
+	} else if (type == "Nextion") {
+		std::string port            = m_conf.getNextionPort();
+		unsigned int brightness     = m_conf.getNextionBrightness();
+		bool displayClock           = m_conf.getNextionDisplayClock();
+		bool utc                    = m_conf.getNextionUTC();
+		unsigned int idleBrightness = m_conf.getNextionIdleBrightness();
+		unsigned int screenLayout   = m_conf.getNextionScreenLayout();
+		bool displayTempInF         = m_conf.getNextionTempInFahrenheit();
+
+		LogInfo("    Port: %s", port.c_str());
+		LogInfo("    Brightness: %u", brightness);
+		LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
+		if (displayClock)
+			LogInfo("    Display UTC: %s", utc ? "yes" : "no");
+		LogInfo("    Idle Brightness: %u", idleBrightness);
+		LogInfo("    Temperature in Fahrenheit: %s ", displayTempInF ? "yes" : "no");
+ 
+		switch (screenLayout) {
+		case 0U:
+			LogInfo("    Screen Layout: G4KLX (Default)");
+			break;
+		case 2U:
+			LogInfo("    Screen Layout: ON7LDS");
+			break;
+		case 3U:
+			LogInfo("    Screen Layout: DIY by ON7LDS");
+			break;
+		case 4U:
+			LogInfo("    Screen Layout: DIY by ON7LDS (High speed)");
+			break;
+		default:
+			LogInfo("    Screen Layout: %u (Unknown)", screenLayout);
+			break;
+		}
+
+		if (port == "modem") {
+			ISerialPort* serial = m_msp = new CModemSerialPort(m_conf.getMMDVMName());
+			m_display = new CNextion(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), serial, brightness, displayClock, utc, idleBrightness, screenLayout, displayTempInF);
+		} else {
+			unsigned int baudrate = 9600U;
+			if (screenLayout == 4U)
+				baudrate = 115200U;
+			
+			LogInfo("    Display baudrate: %u ", baudrate);
+			ISerialPort* serial = new CUARTController(port, baudrate);
+			m_display = new CNextion(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), serial, brightness, displayClock, utc, idleBrightness, screenLayout, displayTempInF);
+		}
+	} else if (type == "LCDproc") {
+		std::string address       = m_conf.getLCDprocAddress();
+		unsigned int port         = m_conf.getLCDprocPort();
+		unsigned int localPort    = m_conf.getLCDprocLocalPort();
+		bool displayClock         = m_conf.getLCDprocDisplayClock();
+		bool utc                  = m_conf.getLCDprocUTC();
+		bool dimOnIdle            = m_conf.getLCDprocDimOnIdle();
+
+		LogInfo("    Address: %s", address.c_str());
+		LogInfo("    Port: %u", port);
+
+		if (localPort == 0U)
+			LogInfo("    Local Port: random");
+		else
+			LogInfo("    Local Port: %u", localPort);
+
+		LogInfo("    Dim Display on Idle: %s", dimOnIdle ? "yes" : "no");
+		LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
+
+		if (displayClock)
+			LogInfo("    Display UTC: %s", utc ? "yes" : "no");
+
+		m_display = new CLCDproc(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), address, port, localPort, displayClock, utc, dimOnIdle);
+#if defined(HD44780)
+	} else if (type == "HD44780") {
+		unsigned int rows              = m_conf.getHD44780Rows();
+		unsigned int columns           = m_conf.getHD44780Columns();
+		std::vector<unsigned int> pins = m_conf.getHD44780Pins();
+		unsigned int i2cAddress        = m_conf.getHD44780i2cAddress();
+		bool pwm                       = m_conf.getHD44780PWM();
+		unsigned int pwmPin            = m_conf.getHD44780PWMPin();
+		unsigned int pwmBright         = m_conf.getHD44780PWMBright();
+		unsigned int pwmDim            = m_conf.getHD44780PWMDim();
+		bool displayClock              = m_conf.getHD44780DisplayClock();
+		bool utc                       = m_conf.getHD44780UTC();
+
+		if (pins.size() == 6U) {
+			LogInfo("    Rows: %u", rows);
+			LogInfo("    Columns: %u", columns);
+
+#if defined(ADAFRUIT_DISPLAY) || defined(PCF8574_DISPLAY)
+			LogInfo("    Device Address: %#x", i2cAddress);
+#else
+			LogInfo("    Pins: %u,%u,%u,%u,%u,%u", pins.at(0U), pins.at(1U), pins.at(2U), pins.at(3U), pins.at(4U), pins.at(5U));
+#endif
+
+			LogInfo("    PWM Backlight: %s", pwm ? "yes" : "no");
+			if (pwm) {
+				LogInfo("    PWM Pin: %u", pwmPin);
+				LogInfo("    PWM Bright: %u", pwmBright);
+				LogInfo("    PWM Dim: %u", pwmDim);
+			}
+
+			LogInfo("    Clock Display: %s", displayClock ? "yes" : "no");
+			if (displayClock)
+				LogInfo("    Display UTC: %s", utc ? "yes" : "no");
+
+			m_display = new CHD44780(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), rows, columns, pins, i2cAddress, pwm, pwmPin, pwmBright, pwmDim, displayClock, utc);
+		}
+#endif
+#if defined(OLED)
+	} else if (type == "OLED") {
+	        unsigned char type       = m_conf.getOLEDType();
+	        unsigned char brightness = m_conf.getOLEDBrightness();
+	        bool          invert     = m_conf.getOLEDInvert();
+	        bool          scroll     = m_conf.getOLEDScroll();
+		bool          rotate     = m_conf.getOLEDRotate();
+		bool          logosaver  = m_conf.getOLEDLogoScreensaver();
+
+		m_display = new COLED(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), type, brightness, invert, scroll, rotate, logosaver);
+#endif
+	} else {
+		LogError("No valid display found");
+		return false;
+	}
+
+	bool ret = m_display->open();
+	if (!ret) {
+		delete m_display;
+		return false;
+	}
+
+	return true;
+}
+
 void CDisplayDriver::writeJSONMessage(const std::string& message)
 {
 	nlohmann::json json;
@@ -263,6 +431,344 @@ void CDisplayDriver::writeJSONMessage(const std::string& message)
 	json["timestamp"] = CUtils::createTimestamp();
 	json["message"]   = message;
 
-	WriteJSON("MMDVM", json);
+	WriteJSON("status", json);
+}
+
+void CDisplayDriver::readDisplay(const unsigned char* data, unsigned int length)
+{
+	assert(data != NULL);
+	assert(length > 0U);
+
+	if (m_msp != NULL)
+		m_msp->readData(data, length);
+}
+
+void CDisplayDriver::readJSON(const std::string& text)
+{
+	try {
+		nlohmann::json j = nlohmann::json::parse(text);
+
+		bool exists = j["MMDVM"].is_object();
+		if (exists) {
+			parseMMDVM(j["MMDVM"]);
+			return;
+		}
+
+		exists = j["RSSI"].is_object();
+		if (exists) {
+			parseRSSI(j["RSSI"]);
+			return;
+		}
+
+		exists = j["BER"].is_object();
+		if (exists) {
+			parseBER(j["BER"]);
+			return;
+		}
+
+		exists = j["Text"].is_object();
+		if (exists) {
+			parseText(j["Text"]);
+			return;
+		}
+
+		exists = j["D-Star"].is_object();
+		if (exists) {
+			parseDStar(j["D-Star"]);
+			return;
+		}
+
+		exists = j["DMR"].is_object();
+		if (exists) {
+			parseDMR(j["DMR"]);
+			return;
+		}
+
+		exists = j["YSF"].is_object();
+		if (exists) {
+			parseYSF(j["YSF"]);
+			return;
+		}
+
+		exists = j["P25"].is_object();
+		if (exists) {
+			parseP25(j["P25"]);
+			return;
+		}
+
+		exists = j["NXDN"].is_object();
+		if (exists) {
+			parseNXDN(j["NXDN"]);
+			return;
+		}
+
+		exists = j["POCSAG"].is_object();
+		if (exists) {
+			parsePOCSAG(j["POCSAG"]);
+			return;
+		}
+
+		exists = j["FM"].is_object();
+		if (exists) {
+			parseFM(j["FM"]);
+			return;
+		}
+
+		exists = j["AX.25"].is_object();
+		if (exists) {
+			parseAX25(j["AX.25"]);
+			return;
+		}
+
+		exists = j["M17"].is_object();
+		if (exists) {
+			parseM17(j["M17"]);
+			return;
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing: \"%s\" at byte %d", text.c_str(), ex.byte);
+	}
+}
+
+void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string mode = json["mode"];
+
+	if (mode == "idle") {
+		m_display->setIdle();
+	} else if (mode == "lockout") {
+		m_display->setLockout();
+	} else if (mode == "error") {
+		std::string message = json["message"];
+		m_display->setError(message);
+	}
+}
+
+void CDisplayDriver::parseRSSI(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string mode = json["mode"];
+	int value        = json["value"];
+
+	if (mode == "D-Star") {
+		m_display->writeDStarRSSI(-value);
+	} else if (mode == "DMR") {
+		int slot = json["slot"];
+		m_display->writeDMRRSSI(slot, -value);
+	} else if (mode == "YSF") {
+		m_display->writeFusionRSSI(-value);
+	} else if (mode == "P25") {
+		m_display->writeP25RSSI(-value);
+	} else if (mode == "NXDN") {
+		m_display->writeNXDNRSSI(-value);
+	} else if (mode == "M17") {
+		m_display->writeM17RSSI(-value);
+	}
+}
+
+void CDisplayDriver::parseBER(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string mode = json["mode"];
+	float value      = json["value"];
+
+	if (mode == "D-Star") {
+		m_display->writeDStarBER(value);
+	} else if (mode == "DMR") {
+		int slot = json["slot"];
+		m_display->writeDMRBER(slot, value);
+	} else if (mode == "YSF") {
+		m_display->writeFusionBER(value);
+	} else if (mode == "P25") {
+		m_display->writeP25BER(value);
+	} else if (mode == "NXDN") {
+		m_display->writeNXDNBER(value);
+	} else if (mode == "M17") {
+		m_display->writeM17BER(value);
+	}
+}
+
+// XXX Add D-Star and M17
+void CDisplayDriver::parseText(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string mode = json["mode"];
+	if (mode == "DMR") {
+		int slot          = json["slot"];
+		std::string value = json["value"];
+		m_display->writeDMRTA(slot, value, "?");		// XXX
+	}
+}
+
+void CDisplayDriver::parseDStar(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		std::string source_cs      = json["source_cs"];
+		std::string source_ext     = json["source_ext"];
+		std::string destination_cs = json["destination_cs"];
+		std::string reflector      = json["reflector"];
+		std::string source         = json["source"];
+
+		if (source == "rf")
+			m_display->writeDStar(source_cs, source_ext, destination_cs, "R", reflector);
+		else
+			m_display->writeDStar(source_cs, source_ext, destination_cs, "N", reflector);
+	} else if (action == "end" || action == "lost") {
+		m_display->clearDStar();
+	}
+}
+
+void CDisplayDriver::parseDMR(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		int slot                     = json["slot"];
+		std::string source_info      = json["source_info"];
+		int destination_id           = json["destination_id"];
+		std::string destination_type = json["destination_type"];
+		std::string source           = json["source"];
+
+		bool group = destination_type == "group";
+		if (source == "rf")
+			m_display->writeDMR(slot, source_info, group, destination_id, "R");
+		else
+			m_display->writeDMR(slot, source_info, group, destination_id, "N");
+	} else if (action == "end" || action == "lost") {
+		int slot = json["slot"];
+		m_display->clearDMR(slot);
+	}
+}
+
+void CDisplayDriver::parseYSF(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		std::string source_cs = json["source_cs"];
+		int dgId              = json["dg-id"];
+		std::string reflector = json["reflector"];
+		std::string source    = json["source"];
+
+		if (source == "rf")
+			m_display->writeFusion(source_cs, "ALL", dgId, "R", reflector);
+		else
+			m_display->writeFusion(source_cs, "ALL", dgId, "N", reflector);
+	} else if (action == "end" || action == "lost") {
+		m_display->clearFusion();
+	}
+}
+
+void CDisplayDriver::parseP25(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		std::string source_info      = json["source_info"];
+		int destination_id           = json["destination_id"];
+		std::string destination_type = json["destination_type"];
+		std::string source           = json["source"];
+
+		bool group = destination_type == "group";
+		if (source == "rf")
+			m_display->writeP25(source_info, group, destination_id, "R");
+		else
+			m_display->writeP25(source_info, group, destination_id, "N");
+	} else if (action == "end" || action == "lost") {
+		m_display->clearP25();
+	}
+}
+
+void CDisplayDriver::parseNXDN(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		std::string source_info      = json["source_info"];
+		int destination_id           = json["destination_id"];
+		std::string destination_type = json["destination_type"];
+		std::string source           = json["source"];
+
+		bool group = destination_type == "group";
+		if (source == "rf")
+			m_display->writeNXDN(source_info, group, destination_id, "R");
+		else
+			m_display->writeNXDN(source_info, group, destination_id, "N");
+	} else if (action == "end" || action == "lost") {
+		m_display->clearNXDN();
+	}
+}
+
+void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	int ric             = json["ric"];
+	std::string message = json["message"];
+
+	m_display->writePOCSAG(ric, message);
+
+	// XXX What about clear POCSAG?
+}
+
+void CDisplayDriver::parseFM(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	m_display->setFM();
+}
+
+void CDisplayDriver::parseAX25(const nlohmann::json& json)
+{
+}
+
+void CDisplayDriver::parseM17(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string action = json["action"];
+	if (action == "start" || action == "late_entry") {
+		std::string source_cs      = json["source_cs"];
+		std::string destination_cs = json["destination_cs"];
+		std::string source         = json["source"];
+
+		if (source == "rf")
+			m_display->writeM17(source_cs, destination_cs, "R");
+		else
+			m_display->writeM17(source_cs, destination_cs, "N");
+	} else if (action == "end" || action == "lost") {
+		m_display->clearM17();
+	}
+}
+
+void CDisplayDriver::onDisplay(const unsigned char* data, unsigned int length)
+{
+	assert(data != NULL);
+	assert(length > 0U);
+	assert(driver != NULL);
+
+	driver->readDisplay(data, length);
+}
+
+void CDisplayDriver::onJSON(const unsigned char* data, unsigned int length)
+{
+	assert(data != NULL);
+	assert(length > 0U);
+	assert(driver != NULL);
+
+	driver->readJSON(std::string((char*)data, length));
 }
 

@@ -202,7 +202,7 @@ void CTFTSurenoo::clearDStarInt()
 		setStatusLine(statusLineNo(i), "");
 }
 
-void CTFTSurenoo::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void CTFTSurenoo::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (m_mode != MODE_DMR) {
 		setModeLine(STR_DMR);
@@ -218,7 +218,7 @@ void CTFTSurenoo::writeDMRInt(unsigned int slotNo, const std::string& src, bool 
 	::snprintf(m_temp, sizeof(m_temp), "%s %s", type.c_str(), src.c_str());
 	setStatusLine(statusLineNo(pos * 2), m_temp);
 
-	::snprintf(m_temp, sizeof(m_temp), "TS%d %s%s", slotNo, group ? "TG" : "", dst.c_str());
+	::snprintf(m_temp, sizeof(m_temp), "TS%u %s%u", slotNo, group ? "TG" : "", dst);
 	setStatusLine(statusLineNo(pos * 2 + 1), m_temp);
 
 	m_mode = MODE_DMR;

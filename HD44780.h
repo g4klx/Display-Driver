@@ -109,7 +109,7 @@ protected:
 	virtual void writeDStarRSSIInt(unsigned char rssi); 
 	virtual void clearDStarInt();
 
-	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type);
+	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
 	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi); 
 	virtual void clearDMRInt(unsigned int slotNo);
 

@@ -17,16 +17,30 @@
 */
 
 #include "ModemSerialPort.h"
+#include "MQTTConnection.h"
 
 #include <cstdio>
+#include <cstring>
 #include <cassert>
 
-CModemSerialPort::CModemSerialPort()
+// In Log.cpp
+extern CMQTTConnection* m_mqtt;
+
+const unsigned int MAX_DATA_LENGTH = 50U;
+
+CModemSerialPort::CModemSerialPort(const std::string& mmdvmName) :
+m_serialName(),
+m_data(NULL),
+m_length(0U)
 {
+	m_serialName = mmdvmName + "/display-in";
+
+	m_data = new unsigned char[MAX_DATA_LENGTH];
 }
 
 CModemSerialPort::~CModemSerialPort()
 {
+	delete[] m_data;
 }
 
 bool CModemSerialPort::open()
@@ -38,11 +52,11 @@ int CModemSerialPort::write(const unsigned char* data, unsigned int length)
 {
 	assert(data != NULL);
 	assert(length > 0U);
+	assert(m_mqtt != NULL);
 
-	// bool ret = m_modem->writeSerial(data, length);
+	m_mqtt->publish(m_serialName.c_str(), data, length);
 
-	// return ret ? int(length) : -1;
-	return -1;
+	return length;
 }
 
 int CModemSerialPort::read(unsigned char* data, unsigned int length)
@@ -50,10 +64,32 @@ int CModemSerialPort::read(unsigned char* data, unsigned int length)
 	assert(data != NULL);
 	assert(length > 0U);
 
-	// return m_modem->readSerial(data, length);
-	return 0;
+	if (m_length == 0U)
+		return 0U;
+
+	if (m_length <= length) {
+		length = m_length;
+		::memcpy(data, m_data, m_length);
+		m_length = 0U;
+		return length;
+	} else {
+		::memcpy(data, m_data, length);
+		::memmove(m_data, m_data + m_length, m_length - length);
+		m_length -= length;
+		return length;
+	}
 }
 
 void CModemSerialPort::close()
 {
 }
+
+void CModemSerialPort::readData(const unsigned char* data, unsigned int length)
+{
+	assert(data != NULL);
+	assert(length > 0U);
+
+	::memcpy(m_data + m_length, data, length);
+	m_length += length;
+}
+

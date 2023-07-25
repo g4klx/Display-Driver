@@ -429,7 +429,7 @@ void COLED::clearDStarInt()
 	m_display.display();
 }
 
-void COLED::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void COLED::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (m_mode != MODE_DMR) {
 		m_display.clearDisplay();
@@ -445,13 +445,13 @@ void COLED::writeDMRInt(unsigned int slotNo, const std::string& src, bool group,
 			m_display.setCursor(0, OLED_LINE2);
 			m_display.printf("%s", src.c_str());
 			m_display.setCursor(0, OLED_LINE3);
-			m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+			m_display.printf("Slot: %u %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 		} else {
 			m_display.fillRect(0, OLED_LINE4, m_display.width(), 40, BLACK);
 			m_display.setCursor(0, OLED_LINE4);
 			m_display.printf("%s", src.c_str());
 			m_display.setCursor(0, OLED_LINE5);
-			m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+			m_display.printf("Slot: %u %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 		}
 
 		m_display.fillRect(0, OLED_LINE6, m_display.width(), 20, BLACK);
@@ -462,7 +462,7 @@ void COLED::writeDMRInt(unsigned int slotNo, const std::string& src, bool group,
 		m_display.setCursor(0, OLED_LINE2);
 		m_display.printf("%s", src.c_str());
 		m_display.setCursor(0, OLED_LINE3);
-		m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+		m_display.printf("Slot: %u %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 	}
 
 	OLED_statusbar();

@@ -21,9 +21,11 @@
 
 #include "SerialPort.h"
 
+#include <string>
+
 class CModemSerialPort : public ISerialPort {
 public:
-	CModemSerialPort();
+	CModemSerialPort(const std::string& mmdvmName);
 	virtual ~CModemSerialPort();
 
 	virtual bool open();
@@ -34,7 +36,12 @@ public:
 
 	virtual void close();
 
+	void readData(const unsigned char* data, unsigned int length);
+
 private:
+	std::string    m_serialName;
+	unsigned char* m_data;
+	unsigned int   m_length;
 };
 
 #endif

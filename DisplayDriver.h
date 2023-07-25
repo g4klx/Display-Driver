@@ -19,8 +19,11 @@
 #if !defined(DisplayDriver_H)
 #define	DisplayDriver_H
 
+#include "ModemSerialPort.h"
 #include "Display.h"
 #include "Conf.h"
+
+#include <nlohmann/json.hpp>
 
 #include <string>
 
@@ -33,10 +36,33 @@ public:
 	int run();
 
 private:
-	CConf     m_conf;
-	CDisplay* m_display;
+	CConf             m_conf;
+	CDisplay*         m_display;
+	CModemSerialPort* m_msp;
+
+	bool createDisplay();
 
 	void writeJSONMessage(const std::string& message);
+
+	void readJSON(const std::string& text);
+	void readDisplay(const unsigned char* data, unsigned int length);
+
+	void parseMMDVM(const nlohmann::json& json);
+	void parseRSSI(const nlohmann::json& json);
+	void parseBER(const nlohmann::json& json);
+	void parseText(const nlohmann::json& json);
+	void parseDStar(const nlohmann::json& json);
+	void parseDMR(const nlohmann::json& json);
+	void parseYSF(const nlohmann::json& json);
+	void parseP25(const nlohmann::json& json);
+	void parseNXDN(const nlohmann::json& json);
+	void parsePOCSAG(const nlohmann::json& json);
+	void parseFM(const nlohmann::json& json);
+	void parseAX25(const nlohmann::json& json);
+	void parseM17(const nlohmann::json& json);
+
+	static void onDisplay(const unsigned char* data, unsigned int length);
+	static void onJSON(const unsigned char* data, unsigned int length);
 };
 
 #endif

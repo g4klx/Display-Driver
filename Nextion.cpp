@@ -115,7 +115,7 @@ bool CNextion::open()
 	m_network->getNetworkInterface(info);
 	m_ipAddress = (char*)info;
 
-	sendCommand("bkcmd=0");
+	sendCommand("bkcmd=3");
 	sendCommandAction(0U);
 
 	setIdle();
@@ -341,7 +341,7 @@ void CNextion::clearDStarInt()
 	sendCommand("t4.txt=\"\"");
 }
 
-void CNextion::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type)
+void CNextion::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (m_mode != MODE_DMR) {
 		sendCommand("page DMR");
@@ -390,7 +390,7 @@ void CNextion::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 		sendCommand(text);
 		sendCommandAction(62U);
 
-		::sprintf(text, "t1.txt=\"%s%s\"", group ? "TG" : "", dst.c_str());
+		::sprintf(text, "t1.txt=\"%s%u\"", group ? "TG" : "", dst);
 		sendCommand(text);
 		sendCommandAction(65U);
 	} else {
@@ -406,7 +406,7 @@ void CNextion::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 		sendCommand(text);
 		sendCommandAction(70U);
 
-		::sprintf(text, "t3.txt=\"%s%s\"", group ? "TG" : "", dst.c_str());
+		::sprintf(text, "t3.txt=\"%s%u\"", group ? "TG" : "", dst);
 		sendCommand(text);
 		sendCommandAction(73U);
 	}
@@ -940,17 +940,15 @@ void CNextion::sendCommandAction(unsigned int status)
 
 	char text[30U];
 	::sprintf(text, "MMDVM.status.val=%d", status);
+
 	sendCommand(text);
 	sendCommand("click S0,1");
 }
 
 void CNextion::sendCommand(const std::string& command)
 {
-	m_serial->write((unsigned char*)command.c_str(), (unsigned int)command.size());
-	m_serial->write((unsigned char*)"\xFF\xFF\xFF", 3U);
-
-	// Since we just firing commands at the display, and not listening for the response,
-	// we must add a bit of a delay to allow the display to process the commands, else some are getting mangled.
-	// 10 ms is just a guess, but seems to be sufficient.
-	CThread::sleep(10U);
+	char buffer[150U];
+	::snprintf(buffer, 150, "%s\xFF\xFF\xFF", command.c_str());
+	m_serial->write((unsigned char*)buffer, (unsigned int)::strlen(buffer));
 }
+
