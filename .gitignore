@@ -1,0 +1,7 @@
+*.bak
+*.a
+*~
+*.o
+GitVersion.h
+DisplayDriver
+
