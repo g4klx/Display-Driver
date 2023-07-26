@@ -138,10 +138,9 @@ void CTFTSurenoo::setIdleInt()
 	m_mode = MODE_IDLE;
 }
 
-void CTFTSurenoo::setErrorInt(const std::string& text)
+void CTFTSurenoo::setErrorInt()
 {
 	setModeLine(STR_MMDVM);
-	setStatusLine(statusLineNo(0), text.c_str());
 	setStatusLine(statusLineNo(1), "ERROR");
 
 	m_mode = MODE_ERROR;

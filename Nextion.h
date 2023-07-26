@@ -38,7 +38,7 @@ public:
 
 protected:
 	virtual void setIdleInt();
-	virtual void setErrorInt(const std::string& text);
+	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
 	virtual void setFMInt();
@@ -50,7 +50,7 @@ protected:
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
 	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi);
-	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias, const std::string& type);
+	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias);
 	virtual void writeDMRBERInt(unsigned int slotNo, float ber);
 	virtual void clearDMRInt(unsigned int slotNo);
 

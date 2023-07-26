@@ -196,7 +196,7 @@ void CLCDproc::setIdleInt()
 	m_dmr = false;
 }
 
-void CLCDproc::setErrorInt(const std::string& text)
+void CLCDproc::setErrorInt()
 {
 	m_clockDisplayTimer.stop();           // Stop the clock display
 

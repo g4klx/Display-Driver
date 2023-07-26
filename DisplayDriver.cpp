@@ -508,18 +508,6 @@ void CDisplayDriver::readJSON(const std::string& text)
 			return;
 		}
 
-		exists = j["FM"].is_object();
-		if (exists) {
-			parseFM(j["FM"]);
-			return;
-		}
-
-		exists = j["AX.25"].is_object();
-		if (exists) {
-			parseAX25(j["AX.25"]);
-			return;
-		}
-
 		exists = j["M17"].is_object();
 		if (exists) {
 			parseM17(j["M17"]);
@@ -537,14 +525,16 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 
 	std::string mode = json["mode"];
 
-	if (mode == "idle") {
+	if (mode == "idle")
 		m_display->setIdle();
-	} else if (mode == "lockout") {
+	else if (mode == "CW")
+		m_display->writeCW();
+	else if (mode == "FM")
+		m_display->setFM();
+	else if (mode == "lockout") 
 		m_display->setLockout();
-	} else if (mode == "error") {
-		std::string message = json["message"];
-		m_display->setError(message);
-	}
+	else if (mode == "error")
+		m_display->setError();
 }
 
 void CDisplayDriver::parseRSSI(const nlohmann::json& json)
@@ -593,16 +583,21 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 	}
 }
 
-// XXX Add D-Star and M17
 void CDisplayDriver::parseText(const nlohmann::json& json)
 {
 	assert(m_display != NULL);
 
 	std::string mode = json["mode"];
-	if (mode == "DMR") {
+	if (mode == "D-Star") {
+		std::string value = json["value"];
+		m_display->writeDStarText(value);
+	} else if (mode == "DMR") {
 		int slot          = json["slot"];
 		std::string value = json["value"];
-		m_display->writeDMRTA(slot, value, "?");		// XXX
+		m_display->writeDMRTA(slot, value);
+	} else if (mode == "M17") {
+		std::string value = json["value"];
+		m_display->writeM17Text(value);
 	}
 }
 
@@ -716,23 +711,14 @@ void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 {
 	assert(m_display != NULL);
 
-	int ric             = json["ric"];
-	std::string message = json["message"];
-
-	m_display->writePOCSAG(ric, message);
-
-	// XXX What about clear POCSAG?
-}
-
-void CDisplayDriver::parseFM(const nlohmann::json& json)
-{
-	assert(m_display != NULL);
-
-	m_display->setFM();
-}
-
-void CDisplayDriver::parseAX25(const nlohmann::json& json)
-{
+	std::string functional = json["functional"];
+	if (functional == "end") {
+		m_display->clearPOCSAG();
+	} else {
+		int ric             = json["ric"];
+		std::string message = json["message"];
+		m_display->writePOCSAG(ric, message);
+	}
 }
 
 void CDisplayDriver::parseM17(const nlohmann::json& json)

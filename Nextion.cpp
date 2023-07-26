@@ -181,7 +181,7 @@ void CNextion::setIdleInt()
 	m_mode = MODE_IDLE;
 }
 
-void CNextion::setErrorInt(const std::string& text)
+void CNextion::setErrorInt()
 {
 	sendCommand("page MMDVM");
 	sendCommandAction(1U);
@@ -192,12 +192,8 @@ void CNextion::setErrorInt(const std::string& text)
 		sendCommand(command);
 	}
 
-	::sprintf(command, "t0.txt=\"%s\"", text.c_str());
+	::sprintf(command, "t0.txt=\"ERROR\"");
 	sendCommandAction(13U);
-
-	sendCommand(command);
-	sendCommand("t1.txt=\"ERROR\"");
-	sendCommandAction(14U);
 
 	m_clockDisplayTimer.stop();
 
@@ -453,28 +449,14 @@ void CNextion::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi)
 	}
 }
 
-void CNextion::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias, const std::string& type)
+void CNextion::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias)
 {
 	if (!(m_screenLayout & LAYOUT_TA_ENABLE))
 		return;
 
-	if (type[0] == ' ') {
-		if (slotNo == 1U) {
-			if (m_screenLayout & LAYOUT_TA_COLOUR)
-				 sendCommand("t0.pco=33808");
-			sendCommandAction(64U);
-		} else {
-			if (m_screenLayout & LAYOUT_TA_COLOUR)
-				 sendCommand("t2.pco=33808");
-			sendCommandAction(72U);
-		}
-
-		return;
-	}
-
 	if (slotNo == 1U) {
 		char text[50U];
-		::sprintf(text, "t0.txt=\"1 %s %s\"", type.c_str(), talkerAlias.c_str());
+		::sprintf(text, "t0.txt=\"1 %s\"", talkerAlias.c_str());
 
 		if (m_screenLayout & LAYOUT_TA_FONTSIZE) {
 			if (talkerAlias.size() > (16U-4U))
@@ -492,7 +474,7 @@ void CNextion::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias
 		sendCommandAction(63U);
 	} else {
 		char text[50U];
-		::sprintf(text, "t2.txt=\"2 %s %s\"", type.c_str(), talkerAlias.c_str());
+		::sprintf(text, "t2.txt=\"2 %s\"", talkerAlias.c_str());
 
 		if (m_screenLayout & LAYOUT_TA_FONTSIZE) {
 			if (talkerAlias.size() > (16U-4U))

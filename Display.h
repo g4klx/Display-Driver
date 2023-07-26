@@ -37,19 +37,20 @@ public:
 
 	void setIdle();
 	void setLockout();
-	void setError(const std::string& text);
+	void setError();
 	void setQuit();
 	void setFM();
 
 	void writeDStar(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
 	void writeDStarRSSI(unsigned char rssi);
 	void writeDStarBER(float ber);
+	void writeDStarText(const std::string& text);
 	void clearDStar();
 
 	void writeDMR(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
 	void writeDMRRSSI(unsigned int slotNo, unsigned char rssi);
 	void writeDMRBER(unsigned int slotNo, float ber);
-	void writeDMRTA(unsigned int slotNo, const std::string& talkerAlias, const std::string& type);
+	void writeDMRTA(unsigned int slotNo, const std::string& talkerAlias);
 	void clearDMR(unsigned int slotNo);
 
 	void writeFusion(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin);
@@ -70,6 +71,7 @@ public:
 	void writeM17(const std::string& source, const std::string& dest, const std::string& type);
 	void writeM17RSSI(unsigned char rssi);
 	void writeM17BER(float ber);
+	void writeM17Text(const std::string& text);
 	void clearM17();
 
 	void writePOCSAG(uint32_t ric, const std::string& message);
@@ -84,18 +86,19 @@ public:
 protected:
 	virtual void setIdleInt() = 0;
 	virtual void setLockoutInt() = 0;
-	virtual void setErrorInt(const std::string& text) = 0;
+	virtual void setErrorInt() = 0;
 	virtual void setQuitInt() = 0;
 	virtual void setFMInt() = 0;
 
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector) = 0;
 	virtual void writeDStarRSSIInt(unsigned char rssi);
 	virtual void writeDStarBERInt(float ber);
+	virtual void writeDStarTextInt(const std::string& text);
 	virtual void clearDStarInt() = 0;
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type) = 0;
 	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi);
-	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias, const std::string& type);
+	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias);
 	virtual void writeDMRBERInt(unsigned int slotNo, float ber);
 	virtual void clearDMRInt(unsigned int slotNo) = 0;
 
@@ -117,6 +120,7 @@ protected:
 	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) = 0;
 	virtual void writeM17RSSIInt(unsigned char rssi);
 	virtual void writeM17BERInt(float ber);
+	virtual void writeM17TextInt(const std::string& text);
 	virtual void clearM17Int() = 0;
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) = 0;

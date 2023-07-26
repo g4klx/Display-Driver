@@ -322,7 +322,7 @@ void CHD44780::setIdleInt()
 	m_dmr = false;
 }
 
-void CHD44780::setErrorInt(const std::string& text)
+void CHD44780::setErrorInt()
 {
 #ifdef ADAFRUIT_DISPLAY
 	adafruitLCDColour(AC_RED);
@@ -341,7 +341,7 @@ void CHD44780::setErrorInt(const std::string& text)
 	::lcdPuts(m_fd, "MMDVM");
 
 	::lcdPosition(m_fd, 0, 1);
-	::lcdPrintf(m_fd, "%s ERROR", text.c_str());
+	::lcdPrintf(m_fd, "ERROR");
 
 	m_dmr = false;
 }

@@ -331,18 +331,18 @@ void COLED::setIdleInt()
 	m_display.display();
 }
 
-void COLED::setErrorInt(const std::string& text)
+void COLED::setErrorInt()
 {
 	m_mode = MODE_ERROR;
 
 	m_display.clearDisplay();
 	OLED_statusbar();
 
-	m_display.setTextWrap(true);    // text wrap temorally enable
-	m_display.setCursor(0, OLED_LINE1);
-	m_display.printf("%s\n", text.c_str());
-	m_display.setTextWrap(false);
+	m_display.setCursor(0, 30);
+	m_display.setTextSize(3);
+	m_display.print("ERROR");
 
+	m_display.setTextSize(1);
 	m_display.display();
 }
 

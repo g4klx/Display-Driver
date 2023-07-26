@@ -100,13 +100,13 @@ public:
 
 protected:
 	virtual void setIdleInt();
-	virtual void setErrorInt(const std::string& text);
+	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
 	virtual void setFMInt();
 
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
-	virtual void writeDStarRSSIInt(unsigned char rssi); 
+	virtual void writeDStarRSSIInt(unsigned char rssi);
 	virtual void clearDStarInt();
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);

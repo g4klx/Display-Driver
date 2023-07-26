@@ -51,7 +51,7 @@ public:
 
 	virtual void setIdleInt();
 
-	virtual void setErrorInt(const std::string& text);
+	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
 	virtual void setFMInt();

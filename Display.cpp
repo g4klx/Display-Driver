@@ -58,7 +58,7 @@ void CDisplay::setLockout()
 	setLockoutInt();
 }
 
-void CDisplay::setError(const std::string& text)
+void CDisplay::setError()
 {
 	m_timer1.stop();
 	m_timer2.stop();
@@ -66,7 +66,7 @@ void CDisplay::setError(const std::string& text)
 	m_mode1 = MODE_IDLE;
 	m_mode2 = MODE_IDLE;
 
-	setErrorInt(text);
+	setErrorInt();
 }
 
 void CDisplay::setQuit()
@@ -110,6 +110,11 @@ void CDisplay::writeDStarBER(float ber)
 	writeDStarBERInt(ber);
 }
 
+void CDisplay::writeDStarText(const std::string& text)
+{
+	writeDStarTextInt(text);
+}
+
 void CDisplay::clearDStar()
 {
 	if (m_timer1.hasExpired()) {
@@ -140,14 +145,9 @@ void CDisplay::writeDMRRSSI(unsigned int slotNo, unsigned char rssi)
 		writeDMRRSSIInt(slotNo, rssi);
 }
 
-void CDisplay::writeDMRTA(unsigned int slotNo, const std::string& talkerAlias, const std::string& type)
+void CDisplay::writeDMRTA(unsigned int slotNo, const std::string& talkerAlias)
 {
-	if (type == " ") {
-		writeDMRTAInt(slotNo, "", type);
-		return;
-	}
-
-	writeDMRTAInt(slotNo, talkerAlias, type);
+	writeDMRTAInt(slotNo, talkerAlias);
 }
 
 void CDisplay::writeDMRBER(unsigned int slotNo, float ber)
@@ -285,6 +285,11 @@ void CDisplay::writeM17BER(float ber)
 	writeM17BERInt(ber);
 }
 
+void CDisplay::writeM17Text(const std::string& text)
+{
+	writeM17TextInt(text);
+}
+
 void CDisplay::clearM17()
 {
 	if (m_timer1.hasExpired()) {
@@ -398,11 +403,15 @@ void CDisplay::writeDStarBERInt(float ber)
 {
 }
 
+void CDisplay::writeDStarTextInt(const std::string& text)
+{
+}
+
 void CDisplay::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi)
 {
 }
 
-void CDisplay::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias, const std::string& type)
+void CDisplay::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias)
 {
 }
 
@@ -439,6 +448,10 @@ void CDisplay::writeM17RSSIInt(unsigned char rssi)
 }
 
 void CDisplay::writeM17BERInt(float ber)
+{
+}
+
+void CDisplay::writeM17TextInt(const std::string& text)
 {
 }
 
