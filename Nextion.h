@@ -46,6 +46,7 @@ protected:
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
 	virtual void writeDStarRSSIInt(unsigned char rssi);
 	virtual void writeDStarBERInt(float ber);
+	virtual void writeDStarTextInt(const std::string& text);
 	virtual void clearDStarInt();
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
@@ -72,6 +73,7 @@ protected:
 	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type);
 	virtual void writeM17RSSIInt(unsigned char rssi);
 	virtual void writeM17BERInt(float ber);
+	virtual void writeM17TextInt(const std::string& text);
 	virtual void clearM17Int();
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
@@ -104,6 +106,7 @@ private:
 	unsigned int  m_berCount1;
 	unsigned int  m_berCount2;
 	bool          m_displayTempInF;
+	bool          m_waiting;
 
 	void sendCommand(const std::string& command);
 	void sendCommandAction(unsigned int status);

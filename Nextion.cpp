@@ -71,7 +71,8 @@ m_rssiCount1(0U),
 m_rssiCount2(0U),
 m_berCount1(0U),
 m_berCount2(0U),
-m_displayTempInF(displayTempInF)
+m_displayTempInF(displayTempInF),
+m_waiting(false)
 {
 	assert(serial != NULL);
 	assert(brightness >= 0U && brightness <= 100U);
@@ -327,6 +328,15 @@ void CNextion::writeDStarBERInt(float ber)
 	}
 }
 
+void CNextion::writeDStarTextInt(const std::string& text)
+{
+	char buffer[25U];
+	::sprintf(buffer, "t5.txt=\"%s\"", text.c_str());
+
+	sendCommand(buffer);
+	sendCommandAction(49U);
+}
+
 void CNextion::clearDStarInt()
 {
 	sendCommand("t0.txt=\"Listening\"");
@@ -335,6 +345,7 @@ void CNextion::clearDStarInt()
 	sendCommand("t2.txt=\"\"");
 	sendCommand("t3.txt=\"\"");
 	sendCommand("t4.txt=\"\"");
+	sendCommand("t5.txt=\"\"");
 }
 
 void CNextion::writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type)
@@ -829,6 +840,15 @@ void CNextion::writeM17BERInt(float ber)
 	}
 }
 
+void CNextion::writeM17TextInt(const std::string& text)
+{
+	char buffer[105U];
+	::sprintf(buffer, "t4.txt=\"%s\"", text.c_str());
+
+	sendCommand(buffer);
+	sendCommandAction(146U);
+}
+
 void CNextion::clearM17Int()
 {
 	sendCommand("t0.txt=\"Listening\"");
@@ -836,6 +856,7 @@ void CNextion::clearM17Int()
 	sendCommand("t1.txt=\"\"");
 	sendCommand("t2.txt=\"\"");
 	sendCommand("t3.txt=\"\"");
+	sendCommand("t4.txt=\"\"");
 }
 
 void CNextion::writePOCSAGInt(uint32_t ric, const std::string& message)
