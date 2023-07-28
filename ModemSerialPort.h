@@ -20,6 +20,7 @@
 #define ModemSerialPort_H
 
 #include "SerialPort.h"
+#include "RingBuffer.h"
 
 #include <string>
 
@@ -39,9 +40,8 @@ public:
 	void readData(const unsigned char* data, unsigned int length);
 
 private:
-	std::string    m_serialName;
-	unsigned char* m_data;
-	unsigned int   m_length;
+	std::string                m_serialName;
+	CRingBuffer<unsigned char> m_buffer;
 };
 
 #endif

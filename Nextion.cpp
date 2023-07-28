@@ -18,6 +18,7 @@
 
 #include "NetworkInfo.h"
 #include "Nextion.h"
+#include "Utils.h"
 #include "Log.h"
 
 #include <cstdio>
@@ -49,6 +50,8 @@ const unsigned int M17_BER_COUNT    = 28U;		  // 28 * 40ms = 1120ms
 // 00:low, others:high-speed. bit[2] is overlapped with LAYOUT_COMPAT_MASK.
 #define LAYOUT_HIGHSPEED	(3 << 2)
 
+const unsigned int REPLY_LENGTH = 4U;
+
 CNextion::CNextion(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness, bool displayClock, bool utc, unsigned int idleBrightness, unsigned int screenLayout, bool displayTempInF) :
 CDisplay(),
 m_callsign(callsign),
@@ -72,6 +75,8 @@ m_rssiCount2(0U),
 m_berCount1(0U),
 m_berCount2(0U),
 m_displayTempInF(displayTempInF),
+m_output(200U, "Nextion buffer"),
+m_reply(NULL),
 m_waiting(false)
 {
 	assert(serial != NULL);
@@ -93,10 +98,13 @@ m_waiting(false)
 		m_screenLayout = screenLayout & ~LAYOUT_COMPAT_MASK;
 	else
 		m_screenLayout = feature_set[screenLayout];
+
+	m_reply = new unsigned char[REPLY_LENGTH];
 }
 
 CNextion::~CNextion()
 {
+	delete[] m_reply;
 }
 
 bool CNextion::open()
@@ -909,6 +917,8 @@ void CNextion::clearCWInt()
 
 void CNextion::clockInt(unsigned int ms)
 {
+	assert(m_serial != NULL);
+
 	// Update the clock display in IDLE mode every 400ms
 	m_clockDisplayTimer.clock(ms);
 	if (m_displayClock && (m_mode == MODE_IDLE || m_mode == MODE_CW) && m_clockDisplayTimer.isRunning() && m_clockDisplayTimer.hasExpired()) {
@@ -921,12 +931,50 @@ void CNextion::clockInt(unsigned int ms)
 		else
 			Time = ::localtime(&currentTime);
 
-		setlocale(LC_TIME,"");
+		::setlocale(LC_TIME,"");
 		char text[50U];
-		strftime(text, 50, "t2.txt=\"%x %X\"", Time);
+		::strftime(text, 50, "t2.txt=\"%x %X\"", Time);
 		sendCommand(text);
 
 		m_clockDisplayTimer.start(); // restart the clock display timer
+	}
+
+	if (m_waiting) {
+		unsigned char c;
+		unsigned int len;
+		while ((len = m_serial->read(&c, 1U)) == 1U) {
+			m_reply[3U] = m_reply[2U];
+			m_reply[2U] = m_reply[1U];
+			m_reply[1U] = m_reply[0U];
+			m_reply[0U] = c;
+
+			// Do we have a valid reply?
+			if (m_reply[1U] == 0xFFU && m_reply[2U] == 0xFFU && m_reply[3U] == 0xFFU) {
+				CUtils::dump(1U, "Nextion input", m_reply, 4U);
+
+				if (m_reply[0U] != 0x01U)
+					LogWarning("Error returned from the screen - 0x%02X", m_reply[0U]);
+
+				m_waiting = false;
+				break;
+			}
+		}
+	}
+
+	if (!m_waiting) {
+		if (!m_output.isEmpty()) {
+			unsigned char len = 0U;
+			m_output.getData(&len, 1U);
+
+			unsigned char buffer[100U];
+			m_output.getData(buffer, len);
+
+			CUtils::dump(1U, "Nextion output", buffer, len);
+
+			m_serial->write(buffer, len);
+
+			m_waiting = true;
+		}
 	}
 }
 
@@ -942,7 +990,7 @@ void CNextion::sendCommandAction(unsigned int status)
 		return;
 
 	char text[30U];
-	::sprintf(text, "MMDVM.status.val=%d", status);
+	::sprintf(text, "MMDVM.status.val=%u", status);
 
 	sendCommand(text);
 	sendCommand("click S0,1");
@@ -950,8 +998,11 @@ void CNextion::sendCommandAction(unsigned int status)
 
 void CNextion::sendCommand(const std::string& command)
 {
-	char buffer[150U];
-	::snprintf(buffer, 150, "%s\xFF\xFF\xFF", command.c_str());
-	m_serial->write((unsigned char*)buffer, (unsigned int)::strlen(buffer));
+	unsigned char len = (unsigned char)command.size();
+	unsigned char c = len + 3U;
+
+	m_output.addData(&c, 1U);
+	m_output.addData((unsigned char*)command.c_str(), len);
+	m_output.addData((unsigned char*)"\xFF\xFF\xFF", 3U);
 }
 

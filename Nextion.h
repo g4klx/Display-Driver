@@ -21,6 +21,7 @@
 
 #include "Display.h"
 #include "Defines.h"
+#include "RingBuffer.h"
 #include "SerialPort.h"
 #include "Timer.h"
 #include "Thread.h"
@@ -85,28 +86,30 @@ protected:
 	virtual void clockInt(unsigned int ms);
 
 private:
-	std::string   m_callsign;
-	unsigned int  m_id;
-	bool          m_duplex;
-	std::string   m_ipAddress;
-	ISerialPort*  m_serial;
-	unsigned int  m_brightness;
-	unsigned char m_mode;
-	bool          m_displayClock;
-	bool          m_utc;
-	unsigned int  m_idleBrightness;
-	unsigned int  m_screenLayout;
-	CTimer        m_clockDisplayTimer;
-	unsigned int  m_rssiAccum1;
-	unsigned int  m_rssiAccum2;
-	float         m_berAccum1;
-	float         m_berAccum2;
-	unsigned int  m_rssiCount1;
-	unsigned int  m_rssiCount2;
-	unsigned int  m_berCount1;
-	unsigned int  m_berCount2;
-	bool          m_displayTempInF;
-	bool          m_waiting;
+	std::string    m_callsign;
+	unsigned int   m_id;
+	bool           m_duplex;
+	std::string    m_ipAddress;
+	ISerialPort*   m_serial;
+	unsigned int   m_brightness;
+	unsigned char  m_mode;
+	bool           m_displayClock;
+	bool           m_utc;
+	unsigned int   m_idleBrightness;
+	unsigned int   m_screenLayout;
+	CTimer         m_clockDisplayTimer;
+	unsigned int   m_rssiAccum1;
+	unsigned int   m_rssiAccum2;
+	float          m_berAccum1;
+	float          m_berAccum2;
+	unsigned int   m_rssiCount1;
+	unsigned int   m_rssiCount2;
+	unsigned int   m_berCount1;
+	unsigned int   m_berCount2;
+	bool           m_displayTempInF;
+	CRingBuffer<unsigned char> m_output;
+	unsigned char* m_reply;
+	bool           m_waiting;
 
 	void sendCommand(const std::string& command);
 	void sendCommandAction(unsigned int status);
