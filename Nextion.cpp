@@ -50,7 +50,7 @@ const unsigned int M17_BER_COUNT    = 28U;		  // 28 * 40ms = 1120ms
 // 00:low, others:high-speed. bit[2] is overlapped with LAYOUT_COMPAT_MASK.
 #define LAYOUT_HIGHSPEED	(3 << 2)
 
-const unsigned int REPLY_LENGTH = 4U;
+const unsigned int MAX_REPLY_LENGTH = 9U;
 
 CNextion::CNextion(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness, bool displayClock, bool utc, unsigned int idleBrightness, unsigned int screenLayout, bool displayTempInF) :
 CDisplay(),
@@ -76,6 +76,7 @@ m_berCount1(0U),
 m_berCount2(0U),
 m_displayTempInF(displayTempInF),
 m_output(200U, "Nextion buffer"),
+m_mutex(),
 m_reply(NULL),
 m_waiting(false)
 {
@@ -99,7 +100,7 @@ m_waiting(false)
 	else
 		m_screenLayout = feature_set[screenLayout];
 
-	m_reply = new unsigned char[REPLY_LENGTH];
+	m_reply = new unsigned char[MAX_REPLY_LENGTH];
 }
 
 CNextion::~CNextion()
@@ -939,35 +940,58 @@ void CNextion::clockInt(unsigned int ms)
 		m_clockDisplayTimer.start(); // restart the clock display timer
 	}
 
-	if (m_waiting) {
-		unsigned char c;
-		unsigned int len;
-		while ((len = m_serial->read(&c, 1U)) == 1U) {
-			m_reply[3U] = m_reply[2U];
-			m_reply[2U] = m_reply[1U];
-			m_reply[1U] = m_reply[0U];
-			m_reply[0U] = c;
+	unsigned char c;
+	unsigned int len;
+	while ((len = m_serial->read(&c, 1U)) == 1U) {
+		::memmove(m_reply + 1U, m_reply + 0U, MAX_REPLY_LENGTH - 1U);
+		m_reply[0U] = c;
 
-			// Do we have a valid reply?
-			if (m_reply[1U] == 0xFFU && m_reply[2U] == 0xFFU && m_reply[3U] == 0xFFU) {
-				CUtils::dump(1U, "Nextion input", m_reply, 4U);
-
-				if (m_reply[0U] != 0x01U)
-					LogWarning("Error returned from the screen - 0x%02X", m_reply[0U]);
-
-				m_waiting = false;
-				break;
+		// Do we have a valid reply?
+		if (m_reply[0U] == 0xFFU && m_reply[1U] == 0xFFU && m_reply[2U] == 0xFFU) {
+			switch (m_reply[3U]) {
+				case 0x00U:	// Invalid instruction
+				case 0x02U:	// Invalid component ID
+				case 0x03U:	// Invalid page ID
+				case 0x04U:	// Invalid picture ID
+				case 0x05U:	// Invalid font ID
+				case 0x06U:	// Invalid file operation
+				case 0x09U:	// Invalid CRC
+				case 0x11U:	// Invalid baud rate setting
+				case 0x12U:	// Invalid waveform ID or channel number
+				case 0x1AU:	// Invalid variable name or operation
+				case 0x1BU:	// Invalid variable operation
+				case 0x1CU:	// Assignment failed to assign
+				case 0x1DU:	// EEPROM operation failed
+				case 0x1EU:	// Invalid quantity of parameters
+				case 0x1FU:	// IO operation failed
+				case 0x20U:	// Escape character invalid
+				case 0x23U:	// Variable name too long
+				case 0x24U:	// Serial buffer overflow
+					LogWarning("Nextion error response - 0x%02X", m_reply[3U]);
+					break;
+				case 0x01U:	// Instruction successful
+					break;
+				default:	// Unhandled response
+					LogWarning("Unknown Nextion response - 0x%02X", m_reply[3U]);
+					break;
 			}
+
+			m_waiting = false;
+			break;
 		}
 	}
 
 	if (!m_waiting) {
 		if (!m_output.isEmpty()) {
+			m_mutex.lock();
+
 			unsigned char len = 0U;
 			m_output.getData(&len, 1U);
 
-			unsigned char buffer[100U];
+			unsigned char buffer[200U];
 			m_output.getData(buffer, len);
+
+			m_mutex.unlock();
 
 			CUtils::dump(1U, "Nextion output", buffer, len);
 
@@ -1001,8 +1025,12 @@ void CNextion::sendCommand(const std::string& command)
 	unsigned char len = (unsigned char)command.size();
 	unsigned char c = len + 3U;
 
+	m_mutex.lock();
+
 	m_output.addData(&c, 1U);
 	m_output.addData((unsigned char*)command.c_str(), len);
 	m_output.addData((unsigned char*)"\xFF\xFF\xFF", 3U);
+
+	m_mutex.unlock();
 }
 

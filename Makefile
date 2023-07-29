@@ -25,7 +25,7 @@ LDFLAGS = -g -L/usr/local/lib
 #CFLAGS  = -g -O3 -Wall -std=c++0x -pthread -DHD44780 -DPCF8574_DISPLAY -I/usr/local/include
 #LIBS    = -lwiringPi -lwiringPiDev -lpthread -lutil -lmosquitto
 
-OBJECTS =	Conf.o Display.o DisplayDriver.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o NetworkInfo.o \
+OBJECTS =	Conf.o Display.o DisplayDriver.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NetworkInfo.o \
 		Nextion.o OLED.o SerialPort.o StopWatch.o TFTSurenoo.o Thread.o Timer.o UARTController.o Utils.o
 
 all:		DisplayDriver

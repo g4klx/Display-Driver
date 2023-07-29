@@ -23,6 +23,7 @@
 #include "Defines.h"
 #include "RingBuffer.h"
 #include "SerialPort.h"
+#include "Mutex.h"
 #include "Timer.h"
 #include "Thread.h"
 #include <string>
@@ -108,6 +109,7 @@ private:
 	unsigned int   m_berCount2;
 	bool           m_displayTempInF;
 	CRingBuffer<unsigned char> m_output;
+	CMutex         m_mutex;
 	unsigned char* m_reply;
 	bool           m_waiting;
 

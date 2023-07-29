@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,30 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(MUTEX_H)
+#define	MUTEX_H
 
-const char* VERSION = "20230729";
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#else
+#include <pthread.h>
+#endif
+
+class CMutex
+{
+public:
+	CMutex();
+	~CMutex();
+
+	void lock();
+	void unlock();
+
+private:
+#if defined(_WIN32) || defined(_WIN64)
+	HANDLE          m_handle;
+#else
+	pthread_mutex_t m_mutex;
+#endif
+};
 
 #endif

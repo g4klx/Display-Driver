@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -16,9 +16,50 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#include "Mutex.h"
 
-const char* VERSION = "20230729";
+#if defined(_WIN32) || defined(_WIN64)
+
+CMutex::CMutex() :
+m_handle()
+{
+	m_handle = ::CreateMutex(NULL, FALSE, NULL);
+}
+
+CMutex::~CMutex()
+{
+	::CloseHandle(m_handle);
+}
+
+void CMutex::lock()
+{
+	::WaitForSingleObject(m_handle, INFINITE);
+}
+
+void CMutex::unlock()
+{
+	::ReleaseMutex(m_handle);
+}
+
+#else
+
+CMutex::CMutex() :
+m_mutex(PTHREAD_MUTEX_INITIALIZER)
+{
+}
+
+CMutex::~CMutex()
+{
+}
+
+void CMutex::lock()
+{
+	::pthread_mutex_lock(&m_mutex);
+}
+
+void CMutex::unlock()
+{
+	::pthread_mutex_unlock(&m_mutex);
+}
 
 #endif
