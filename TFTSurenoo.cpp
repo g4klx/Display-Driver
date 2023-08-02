@@ -80,6 +80,8 @@ enum LcdColour {
 #define STR_M17			"M17"
 #define STR_P25			"P25"
 #define STR_YSF			"SystemFusion"
+#define STR_FM			"FM"
+#define STR_AX25		"AX.25"
 
 CTFTSurenoo::CTFTSurenoo(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness) :
 CDisplay(),
@@ -165,14 +167,6 @@ void CTFTSurenoo::setQuitInt()
 	refreshDisplay();
 
 	m_mode = MODE_QUIT;
-}
-
-void CTFTSurenoo::setFMInt()
-{
-	setModeLine(STR_MMDVM);
-	setStatusLine(statusLineNo(1), "FM");
-
-	m_mode = MODE_FM;
 }
 
 void CTFTSurenoo::writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector)
@@ -313,6 +307,62 @@ void CTFTSurenoo::writeM17Int(const std::string& source, const std::string& dest
 }
 
 void CTFTSurenoo::clearM17Int()
+{
+	clearDStarInt();
+}
+
+void CTFTSurenoo::writeFMInt(const std::string& state)
+{
+	if (m_mode != MODE_FM)
+		setModeLine(STR_FM);
+
+	setStatusLine(statusLineNo(0), state.c_str());
+
+	m_mode = MODE_FM;
+}
+
+void CTFTSurenoo::clearFMInt()
+{
+	clearDStarInt();
+}
+
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi)
+{
+	writeAX25Int(source, source_cs, destination_cs, type, pid, data);
+}
+
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
+{
+	if (m_mode != MODE_AX25)
+		setModeLine(STR_AX25);
+
+	std::string status1 = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
+	std::string status2 = "0x" + pid + " " + data;
+
+	setStatusLine(statusLineNo(0), status1.c_str());
+	setStatusLine(statusLineNo(1), status2.c_str());
+
+	m_mode = MODE_AX25;
+}
+
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi)
+{
+	writeAX25Int(source, source_cs, destination_cs, type);
+}
+
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
+{
+	if (m_mode != MODE_AX25)
+		setModeLine(STR_AX25);
+
+	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
+
+	setStatusLine(statusLineNo(0), status.c_str());
+
+	m_mode = MODE_AX25;
+}
+
+void CTFTSurenoo::clearAX25Int()
 {
 	clearDStarInt();
 }

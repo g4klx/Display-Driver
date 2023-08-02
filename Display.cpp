@@ -80,17 +80,6 @@ void CDisplay::setQuit()
 	setQuitInt();
 }
 
-void CDisplay::setFM()
-{
-	m_timer1.stop();
-	m_timer2.stop();
-
-	m_mode1 = MODE_FM;
-	m_mode2 = MODE_FM;
-
-	setFMInt();
-}
-
 void CDisplay::writeDStar(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector)
 {
 	m_timer1.start();
@@ -99,7 +88,7 @@ void CDisplay::writeDStar(const std::string& my1, const std::string& my2, const 
 	writeDStarInt(my1, my2, your, type, reflector);
 }
 
-void CDisplay::writeDStarRSSI(unsigned char rssi)
+void CDisplay::writeDStarRSSI(float rssi)
 {
 	if (rssi != 0U)
 		writeDStarRSSIInt(rssi);
@@ -139,7 +128,7 @@ void CDisplay::writeDMR(unsigned int slotNo, const std::string& src, bool group,
 	writeDMRInt(slotNo, src, group, dst, type);
 }
 
-void CDisplay::writeDMRRSSI(unsigned int slotNo, unsigned char rssi)
+void CDisplay::writeDMRRSSI(unsigned int slotNo, float rssi)
 {
 	if (rssi != 0U)
 		writeDMRRSSIInt(slotNo, rssi);
@@ -184,7 +173,7 @@ void CDisplay::writeFusion(const std::string& source, const std::string& dest, u
 	writeFusionInt(source, dest, dgid, type, origin);
 }
 
-void CDisplay::writeFusionRSSI(unsigned char rssi)
+void CDisplay::writeFusionRSSI(float rssi)
 {
 	if (rssi != 0U)
 		writeFusionRSSIInt(rssi);
@@ -214,7 +203,7 @@ void CDisplay::writeP25(const std::string& source, bool group, unsigned int dest
 	writeP25Int(source, group, dest, type);
 }
 
-void CDisplay::writeP25RSSI(unsigned char rssi)
+void CDisplay::writeP25RSSI(float rssi)
 {
 	if (rssi != 0U)
 		writeP25RSSIInt(rssi);
@@ -244,7 +233,7 @@ void CDisplay::writeNXDN(const std::string& source, bool group, unsigned int des
 	writeNXDNInt(source, group, dest, type);
 }
 
-void CDisplay::writeNXDNRSSI(unsigned char rssi)
+void CDisplay::writeNXDNRSSI(float rssi)
 {
 	if (rssi != 0U)
 		writeNXDNRSSIInt(rssi);
@@ -274,7 +263,7 @@ void CDisplay::writeM17(const std::string& source, const std::string& dest, cons
 	writeM17Int(source, dest, type);
 }
 
-void CDisplay::writeM17RSSI(unsigned char rssi)
+void CDisplay::writeM17RSSI(float rssi)
 {
 	if (rssi != 0U)
 		writeM17RSSIInt(rssi);
@@ -318,6 +307,52 @@ void CDisplay::clearPOCSAG()
 	} else {
 		m_mode1 = MODE_POCSAG;
 	}
+}
+
+void CDisplay::writeFM(const std::string& status)
+{
+	m_timer1.start();
+	m_mode1 = MODE_FM;
+
+	writeFMInt(status);
+}
+
+void CDisplay::writeFMRSSI(float rssi)
+{
+	if (rssi != 0U)
+		writeFMRSSIInt(rssi);
+}
+
+void CDisplay::writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
+{
+	m_timer1.start();
+	m_mode1 = MODE_AX25;
+
+	writeAX25Int(source, source_cs, destination_cs, type);
+}
+
+void CDisplay::writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi)
+{
+	m_timer1.start();
+	m_mode1 = MODE_AX25;
+
+	writeAX25Int(source, source_cs, destination_cs, type, rssi);
+}
+
+void CDisplay::writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
+{
+	m_timer1.start();
+	m_mode1 = MODE_AX25;
+
+	writeAX25Int(source, source_cs, destination_cs, type, pid, data);
+}
+
+void CDisplay::writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi)
+{
+	m_timer1.start();
+	m_mode1 = MODE_AX25;
+
+	writeAX25Int(source, source_cs, destination_cs, type, pid, data, rssi);
 }
 
 void CDisplay::writeCW()
@@ -368,6 +403,16 @@ void CDisplay::clock(unsigned int ms)
 			m_mode1 = MODE_IDLE;
 			m_timer1.stop();
 			break;
+		case MODE_AX25:
+			clearAX25Int();
+			m_mode1 = MODE_IDLE;
+			m_timer1.stop();
+			break;
+		case MODE_FM:
+			clearFMInt();
+			m_mode1 = MODE_IDLE;
+			m_timer1.stop();
+			break;
 		case MODE_CW:
 			clearCWInt();
 			m_mode1 = MODE_IDLE;
@@ -395,7 +440,7 @@ void CDisplay::clockInt(unsigned int ms)
 {
 }
 
-void CDisplay::writeDStarRSSIInt(unsigned char rssi)
+void CDisplay::writeDStarRSSIInt(float rssi)
 {
 }
 
@@ -407,7 +452,7 @@ void CDisplay::writeDStarTextInt(const std::string& text)
 {
 }
 
-void CDisplay::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi)
+void CDisplay::writeDMRRSSIInt(unsigned int slotNo, float rssi)
 {
 }
 
@@ -419,7 +464,7 @@ void CDisplay::writeDMRBERInt(unsigned int slotNo, float ber)
 {
 }
 
-void CDisplay::writeFusionRSSIInt(unsigned char rssi)
+void CDisplay::writeFusionRSSIInt(float rssi)
 {
 }
 
@@ -427,7 +472,7 @@ void CDisplay::writeFusionBERInt(float ber)
 {
 }
 
-void CDisplay::writeP25RSSIInt(unsigned char rssi)
+void CDisplay::writeP25RSSIInt(float rssi)
 {
 }
 
@@ -435,7 +480,7 @@ void CDisplay::writeP25BERInt(float ber)
 {
 }
 
-void CDisplay::writeNXDNRSSIInt(unsigned char rssi)
+void CDisplay::writeNXDNRSSIInt(float rssi)
 {
 }
 
@@ -443,7 +488,7 @@ void CDisplay::writeNXDNBERInt(float ber)
 {
 }
 
-void CDisplay::writeM17RSSIInt(unsigned char rssi)
+void CDisplay::writeM17RSSIInt(float rssi)
 {
 }
 
@@ -452,6 +497,10 @@ void CDisplay::writeM17BERInt(float ber)
 }
 
 void CDisplay::writeM17TextInt(const std::string& text)
+{
+}
+
+void CDisplay::writeFMRSSIInt(float rssi)
 {
 }
 

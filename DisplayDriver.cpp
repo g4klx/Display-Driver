@@ -513,6 +513,18 @@ void CDisplayDriver::readJSON(const std::string& text)
 			parseM17(j["M17"]);
 			return;
 		}
+
+		exists = j["FM"].is_object();
+		if (exists) {
+			parseFM(j["FM"]);
+			return;
+		}
+
+		exists = j["AX.25"].is_object();
+		if (exists) {
+			parseAX25(j["AX.25"]);
+			return;
+		}
 	}
 	catch (nlohmann::json::parse_error& ex) {
 		LogError("Error parsing: \"%s\" at byte %d", text.c_str(), ex.byte);
@@ -529,8 +541,6 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 		m_display->setIdle();
 	else if (mode == "CW")
 		m_display->writeCW();
-	else if (mode == "FM")
-		m_display->setFM();
 	else if (mode == "lockout") 
 		m_display->setLockout();
 	else if (mode == "error")
@@ -542,21 +552,23 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 	assert(m_display != NULL);
 
 	std::string mode = json["mode"];
-	int value        = json["value"];
+	float value      = json["value"];
 
 	if (mode == "D-Star") {
-		m_display->writeDStarRSSI(-value);
+		m_display->writeDStarRSSI(value);
 	} else if (mode == "DMR") {
 		int slot = json["slot"];
-		m_display->writeDMRRSSI(slot, -value);
+		m_display->writeDMRRSSI(slot, value);
 	} else if (mode == "YSF") {
-		m_display->writeFusionRSSI(-value);
+		m_display->writeFusionRSSI(value);
 	} else if (mode == "P25") {
-		m_display->writeP25RSSI(-value);
+		m_display->writeP25RSSI(value);
 	} else if (mode == "NXDN") {
-		m_display->writeNXDNRSSI(-value);
+		m_display->writeNXDNRSSI(value);
 	} else if (mode == "M17") {
-		m_display->writeM17RSSI(-value);
+		m_display->writeM17RSSI(value);
+	} else if (mode == "FM") {
+		m_display->writeFMRSSI(value);
 	}
 }
 
@@ -611,12 +623,9 @@ void CDisplayDriver::parseDStar(const nlohmann::json& json)
 		std::string source_ext     = json["source_ext"];
 		std::string destination_cs = json["destination_cs"];
 		std::string reflector      = json["reflector"];
-		std::string source         = json["source"];
+		std::string source         = json["source"] == "rf" ? "R" : "N";
 
-		if (source == "rf")
-			m_display->writeDStar(source_cs, source_ext, destination_cs, "R", reflector);
-		else
-			m_display->writeDStar(source_cs, source_ext, destination_cs, "N", reflector);
+		m_display->writeDStar(source_cs, source_ext, destination_cs, source, reflector);
 	} else if (action == "end" || action == "lost") {
 		m_display->clearDStar();
 	}
@@ -632,13 +641,10 @@ void CDisplayDriver::parseDMR(const nlohmann::json& json)
 		std::string source_info      = json["source_info"];
 		int destination_id           = json["destination_id"];
 		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"];
+		std::string source           = json["source"] == "rf" ? "R" : "N";
 
 		bool group = destination_type == "group";
-		if (source == "rf")
-			m_display->writeDMR(slot, source_info, group, destination_id, "R");
-		else
-			m_display->writeDMR(slot, source_info, group, destination_id, "N");
+		m_display->writeDMR(slot, source_info, group, destination_id, source);
 	} else if (action == "end" || action == "lost") {
 		int slot = json["slot"];
 		m_display->clearDMR(slot);
@@ -654,12 +660,9 @@ void CDisplayDriver::parseYSF(const nlohmann::json& json)
 		std::string source_cs = json["source_cs"];
 		int dgId              = json["dg-id"];
 		std::string reflector = json["reflector"];
-		std::string source    = json["source"];
+		std::string source    = json["source"] == "rf" ? "R" : "N";
 
-		if (source == "rf")
-			m_display->writeFusion(source_cs, "ALL", dgId, "R", reflector);
-		else
-			m_display->writeFusion(source_cs, "ALL", dgId, "N", reflector);
+		m_display->writeFusion(source_cs, "ALL", dgId, source, reflector);
 	} else if (action == "end" || action == "lost") {
 		m_display->clearFusion();
 	}
@@ -674,13 +677,10 @@ void CDisplayDriver::parseP25(const nlohmann::json& json)
 		std::string source_info      = json["source_info"];
 		int destination_id           = json["destination_id"];
 		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"];
+		std::string source           = json["source"] == "rf" ? "R" : "N";
 
 		bool group = destination_type == "group";
-		if (source == "rf")
-			m_display->writeP25(source_info, group, destination_id, "R");
-		else
-			m_display->writeP25(source_info, group, destination_id, "N");
+		m_display->writeP25(source_info, group, destination_id, source);
 	} else if (action == "end" || action == "lost") {
 		m_display->clearP25();
 	}
@@ -695,13 +695,10 @@ void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 		std::string source_info      = json["source_info"];
 		int destination_id           = json["destination_id"];
 		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"];
+		std::string source           = json["source"] == "rf" ? "R" : "N";
 
 		bool group = destination_type == "group";
-		if (source == "rf")
-			m_display->writeNXDN(source_info, group, destination_id, "R");
-		else
-			m_display->writeNXDN(source_info, group, destination_id, "N");
+		m_display->writeNXDN(source_info, group, destination_id, source);
 	} else if (action == "end" || action == "lost") {
 		m_display->clearNXDN();
 	}
@@ -729,14 +726,49 @@ void CDisplayDriver::parseM17(const nlohmann::json& json)
 	if (action == "start" || action == "late_entry") {
 		std::string source_cs      = json["source_cs"];
 		std::string destination_cs = json["destination_cs"];
-		std::string source         = json["source"];
+		std::string source         = json["source"] == "rf" ? "R" : "N";
 
-		if (source == "rf")
-			m_display->writeM17(source_cs, destination_cs, "R");
-		else
-			m_display->writeM17(source_cs, destination_cs, "N");
+		m_display->writeM17(source_cs, destination_cs, source);
 	} else if (action == "end" || action == "lost") {
 		m_display->clearM17();
+	}
+}
+
+void CDisplayDriver::parseFM(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string state = json["state"];
+
+	m_display->writeFM(state);
+}
+
+void CDisplayDriver::parseAX25(const nlohmann::json& json)
+{
+	assert(m_display != NULL);
+
+	std::string source_cs      = json["source_cs"];
+	std::string destination_cs = json["destination_cs"];
+	std::string type           = json["type"];
+	std::string source         = json["source"] == "rf" ? "R" : "N";
+
+	float rssi = 0.0F;
+	if (json["rssi"].is_number())
+		rssi = json["rssi"];
+
+	if (json["pid"].is_string()) {
+		std::string pid  = json["pid"];
+		std::string data = json["data"];
+
+		if (rssi == 0.0F)
+			m_display->writeAX25(source, source_cs, destination_cs, type, pid, data);
+		else
+			m_display->writeAX25(source, source_cs, destination_cs, type, pid, data, rssi);
+	} else {
+		if (rssi == 0.0F)
+			m_display->writeAX25(source, source_cs, destination_cs, type);
+		else
+			m_display->writeAX25(source, source_cs, destination_cs, type, rssi);
 	}
 }
 
