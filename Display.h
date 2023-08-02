@@ -78,6 +78,7 @@ public:
 
 	void writeFM(const std::string& state);
 	void writeFMRSSI(float rssi);
+	void clearFM();
 
 	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi);
 	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);

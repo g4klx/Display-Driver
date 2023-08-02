@@ -740,7 +740,26 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 
 	std::string state = json["state"];
 
-	m_display->writeFM(state);
+	if (state == "listening")
+		m_display->clearFM();
+	else if (state == "kerchunk_rf")
+		m_display->writeFM("R: Kerchunk");
+	else if (state == "relaying_rf")
+		m_display->writeFM("R: Relaying");
+	else if (state == "relaying_wait_rf" || state == "timeout_wait_rf" || state == "hang")
+		m_display->writeFM("R: Wait");
+	else if (state == "timeout_rf")
+		m_display->writeFM("R: Timeout");
+	else if (state == "kerchunk_ext")
+		m_display->writeFM("N: Kerchunk");
+	else if (state == "relaying_ext")
+		m_display->writeFM("N: Relaying");
+	else if (state == "relaying_wait_ext" || state == "timeout_wait_ext")
+		m_display->writeFM("N: Wait");
+	else if (state == "timeout_ext")
+		m_display->writeFM("N: Timeout");
+	else
+		m_display->writeFM(state);
 }
 
 void CDisplayDriver::parseAX25(const nlohmann::json& json)

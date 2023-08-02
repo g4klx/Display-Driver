@@ -323,6 +323,17 @@ void CDisplay::writeFMRSSI(float rssi)
 		writeFMRSSIInt(rssi);
 }
 
+void CDisplay::clearFM()
+{
+	if (m_timer1.hasExpired()) {
+		clearFMInt();
+		m_timer1.stop();
+		m_mode1 = MODE_IDLE;
+	} else {
+		m_mode1 = MODE_FM;
+	}
+}
+
 void CDisplay::writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
 {
 	m_timer1.start();
