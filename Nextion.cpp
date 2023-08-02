@@ -39,7 +39,7 @@ const unsigned int NXDN_RSSI_COUNT  = 28U;		// 28 * 40ms = 1120ms
 const unsigned int NXDN_BER_COUNT   = 28U;		// 28 * 40ms = 1120ms
 const unsigned int M17_RSSI_COUNT   = 28U;		// 28 * 40ms = 1120ms
 const unsigned int M17_BER_COUNT    = 28U;		// 28 * 40ms = 1120ms
-const unsigned int FM_RSSI_COUNT    = 63U;		// 63 * 20ms = 1120ms
+const unsigned int FM_RSSI_COUNT    = 1U;		// 1 * 1000ms = 1000ms
 
 #define LAYOUT_COMPAT_MASK	(7 << 0) // compatibility for old setting
 #define LAYOUT_TA_ENABLE	(1 << 4) // enable Talker Alias (TA) display
