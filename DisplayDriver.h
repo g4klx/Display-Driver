@@ -58,6 +58,8 @@ private:
 	void parseNXDN(const nlohmann::json& json);
 	void parsePOCSAG(const nlohmann::json& json);
 	void parseM17(const nlohmann::json& json);
+	void parseFM(const nlohmann::json& json);
+	void parseAX25(const nlohmann::json& json);
 
 	static void onDisplay(const unsigned char* data, unsigned int length);
 	static void onJSON(const unsigned char* data, unsigned int length);

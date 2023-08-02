@@ -39,43 +39,50 @@ public:
 	void setLockout();
 	void setError();
 	void setQuit();
-	void setFM();
 
 	void writeDStar(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
-	void writeDStarRSSI(unsigned char rssi);
+	void writeDStarRSSI(float rssi);
 	void writeDStarBER(float ber);
 	void writeDStarText(const std::string& text);
 	void clearDStar();
 
 	void writeDMR(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
-	void writeDMRRSSI(unsigned int slotNo, unsigned char rssi);
+	void writeDMRRSSI(unsigned int slotNo, float rssi);
 	void writeDMRBER(unsigned int slotNo, float ber);
 	void writeDMRTA(unsigned int slotNo, const std::string& talkerAlias);
 	void clearDMR(unsigned int slotNo);
 
 	void writeFusion(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin);
-	void writeFusionRSSI(unsigned char rssi);
+	void writeFusionRSSI(float rssi);
 	void writeFusionBER(float ber);
 	void clearFusion();
 
 	void writeP25(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	void writeP25RSSI(unsigned char rssi);
+	void writeP25RSSI(float rssi);
 	void writeP25BER(float ber);
 	void clearP25();
 
 	void writeNXDN(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	void writeNXDNRSSI(unsigned char rssi);
+	void writeNXDNRSSI(float rssi);
 	void writeNXDNBER(float ber);
 	void clearNXDN();
 
 	void writeM17(const std::string& source, const std::string& dest, const std::string& type);
-	void writeM17RSSI(unsigned char rssi);
+	void writeM17RSSI(float rssi);
 	void writeM17BER(float ber);
 	void writeM17Text(const std::string& text);
 	void clearM17();
 
 	void writePOCSAG(uint32_t ric, const std::string& message);
 	void clearPOCSAG();
+
+	void writeFM(const std::string& state);
+	void writeFMRSSI(float rssi);
+
+	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi);
+	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
+	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi);
+	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
 
 	void writeCW();
 
@@ -88,43 +95,52 @@ protected:
 	virtual void setLockoutInt() = 0;
 	virtual void setErrorInt() = 0;
 	virtual void setQuitInt() = 0;
-	virtual void setFMInt() = 0;
 
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector) = 0;
-	virtual void writeDStarRSSIInt(unsigned char rssi);
+	virtual void writeDStarRSSIInt(float rssi);
 	virtual void writeDStarBERInt(float ber);
 	virtual void writeDStarTextInt(const std::string& text);
 	virtual void clearDStarInt() = 0;
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type) = 0;
-	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi);
+	virtual void writeDMRRSSIInt(unsigned int slotNo, float rssi);
 	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias);
 	virtual void writeDMRBERInt(unsigned int slotNo, float ber);
 	virtual void clearDMRInt(unsigned int slotNo) = 0;
 
 	virtual void writeFusionInt(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin) = 0;
-	virtual void writeFusionRSSIInt(unsigned char rssi);
+	virtual void writeFusionRSSIInt(float rssi);
 	virtual void writeFusionBERInt(float ber);
 	virtual void clearFusionInt() = 0;
 
 	virtual void writeP25Int(const std::string& source, bool group, unsigned int dest, const std::string& type) = 0;
-	virtual void writeP25RSSIInt(unsigned char rssi);
+	virtual void writeP25RSSIInt(float rssi);
 	virtual void writeP25BERInt(float ber);
 	virtual void clearP25Int() = 0;
 
   	virtual void writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type) = 0;
-	virtual void writeNXDNRSSIInt(unsigned char rssi);
+	virtual void writeNXDNRSSIInt(float rssi);
 	virtual void writeNXDNBERInt(float ber);
 	virtual void clearNXDNInt() = 0;
 
 	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) = 0;
-	virtual void writeM17RSSIInt(unsigned char rssi);
+	virtual void writeM17RSSIInt(float rssi);
 	virtual void writeM17BERInt(float ber);
 	virtual void writeM17TextInt(const std::string& text);
 	virtual void clearM17Int() = 0;
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) = 0;
 	virtual void clearPOCSAGInt() = 0;
+
+	virtual void writeFMInt(const std::string& state) = 0;
+	virtual void writeFMRSSIInt(float rssi);
+	virtual void clearFMInt() = 0;
+
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi) = 0;
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data) = 0;
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi) = 0;
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type) = 0;
+	virtual void clearAX25Int() = 0;
 
 	virtual void writeCWInt() = 0;
 	virtual void clearCWInt() = 0;

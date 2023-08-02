@@ -41,7 +41,6 @@ protected:
 	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
-	virtual void setFMInt();
 
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
 	virtual void clearDStarInt();
@@ -63,6 +62,15 @@ protected:
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
+
+	virtual void writeFMInt(const std::string& state);
+	virtual void clearFMInt();
+
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
+	virtual void clearAX25Int();
 
 	virtual void writeCWInt();
 	virtual void clearCWInt();

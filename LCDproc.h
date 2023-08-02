@@ -40,31 +40,40 @@ protected:
 	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
-	virtual void setFMInt();
   
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
-	virtual void writeDStarRSSIInt(unsigned char rssi);
+	virtual void writeDStarRSSIInt(float rssi);
 	virtual void clearDStarInt();
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
-	virtual void writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi); 
+	virtual void writeDMRRSSIInt(unsigned int slotNo, float rssi); 
 	virtual void clearDMRInt(unsigned int slotNo);
 
 	virtual void writeFusionInt(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin);
-	virtual void writeFusionRSSIInt(unsigned char rssi); 
+	virtual void writeFusionRSSIInt(float rssi); 
 	virtual void clearFusionInt();
 
 	virtual void writeP25Int(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	virtual void writeP25RSSIInt(unsigned char rssi); 
+	virtual void writeP25RSSIInt(float rssi); 
 	virtual void clearP25Int();
 
 	virtual void writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	virtual void writeNXDNRSSIInt(unsigned char rssi);
+	virtual void writeNXDNRSSIInt(float rssi);
 	virtual void clearNXDNInt();
 
 	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type);
-	virtual void writeM17RSSIInt(unsigned char rssi);
+	virtual void writeM17RSSIInt(float rssi);
 	virtual void clearM17Int();
+
+	virtual void writeFMInt(const std::string& state);
+	virtual void writeFMRSSIInt(float rssi);
+	virtual void clearFMInt();
+
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
+	virtual void clearAX25Int();
 
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
