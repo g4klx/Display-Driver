@@ -326,7 +326,7 @@ void CTFTSurenoo::clearFMInt()
 	clearDStarInt();
 }
 
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi)
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
 {
 	writeAX25Int(source, source_cs, destination_cs, type, pid, data);
 }
@@ -345,7 +345,7 @@ void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& sou
 	m_mode = MODE_AX25;
 }
 
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi)
+void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
 {
 	writeAX25Int(source, source_cs, destination_cs, type);
 }

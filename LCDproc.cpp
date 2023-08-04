@@ -90,14 +90,6 @@ bool           m_connected(false);
 char           m_displayBuffer1[BUFFER_MAX_LEN];
 char           m_displayBuffer2[BUFFER_MAX_LEN];
 
-const unsigned int DSTAR_RSSI_COUNT = 3U;		// 3 * 420ms = 1260ms
-const unsigned int DMR_RSSI_COUNT   = 4U;		// 4 * 360ms = 1440ms
-const unsigned int YSF_RSSI_COUNT   = 13U;		// 13 * 100ms = 1300ms
-const unsigned int P25_RSSI_COUNT   = 7U;		// 7 * 180ms = 1260ms
-const unsigned int NXDN_RSSI_COUNT  = 28U;		// 28 * 40ms = 1120ms
-const unsigned int M17_RSSI_COUNT   = 28U;		// 28 * 40ms = 1120ms
-const unsigned int FM_RSSI_COUNT    = 1U;		// 1 * 1000ms = 1000ms
-
 CLCDproc::CLCDproc(const std::string& callsign,unsigned int id, bool duplex, const std::string& address, unsigned int port, unsigned short localPort, bool displayClock, bool utc, bool dimOnIdle) :
 CDisplay(),
 m_callsign(callsign),
@@ -110,9 +102,7 @@ m_displayClock(displayClock),
 m_utc(utc),
 m_dimOnIdle(dimOnIdle),
 m_dmr(false),
-m_clockDisplayTimer(1000U, 0U, 250U),   // Update the clock display every 250ms
-m_rssiCount1(0U),
-m_rssiCount2(0U)
+m_clockDisplayTimer(1000U, 0U, 250U)   // Update the clock display every 250ms
 {
 }
 
@@ -290,17 +280,11 @@ void CLCDproc::writeDStarInt(const std::string& my1, const std::string& my2, con
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeDStarRSSIInt(float rssi)
+void CLCDproc::writeDStarRSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U)
-		socketPrintf(m_socketfd, "widget_set DStar Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
- 
-	m_rssiCount1++;
- 	if (m_rssiCount1 >= DSTAR_RSSI_COUNT)
- 		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set DStar Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearDStarInt()
@@ -359,30 +343,15 @@ void CLCDproc::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 	socketPrintf(m_socketfd, "output 16"); // Set LED1 color red
 
 	m_dmr = true;
-	m_rssiCount1 = 0U;
-	m_rssiCount2 = 0U; 
 } 
  
-void CLCDproc::writeDMRRSSIInt(unsigned int slotNo, float rssi) 
+void CLCDproc::writeDMRRSSIInt(unsigned int slotNo, int rssi) 
 { 
-	if (m_rows > 2) {	
-	  if (slotNo == 1U) {
-		  if (m_rssiCount1 == 0U)
-				socketPrintf(m_socketfd, "widget_set DMR Slot1RSSI %u %u %.1fdBm", 1, 4, rssi); 
-
-			m_rssiCount1++; 
-
-			if (m_rssiCount1 >= DMR_RSSI_COUNT)
-				m_rssiCount1 = 0U; 
-		} else { 
-			if (m_rssiCount2 == 0U)
-				socketPrintf(m_socketfd, "widget_set DMR Slot2RSSI %u %u %.1fdBm", (m_cols / 2) + 1, 4, rssi); 
-
-			m_rssiCount2++; 
-
-			if (m_rssiCount2 >= DMR_RSSI_COUNT)
-				m_rssiCount2 = 0U; 
-		} 
+	if (m_rows > 2) {
+		if (slotNo == 1U)
+			socketPrintf(m_socketfd, "widget_set DMR Slot1RSSI %u %u %ddBm", 1, 4, rssi); 
+		else
+			socketPrintf(m_socketfd, "widget_set DMR Slot2RSSI %u %u %ddBm", (m_cols / 2) + 1, 4, rssi); 
 	}
 }
 
@@ -403,6 +372,7 @@ void CLCDproc::clearDMRInt(unsigned int slotNo)
 		socketPrintf(m_socketfd, "widget_set DMR Slot2 1 3 15 3 h 3 \"\"");
 		socketPrintf(m_socketfd, "widget_set DMR Slot2RSSI %u %u %*.s", (m_cols / 2) + 1, 4, m_cols / 2, "          ");
 	}
+
 	socketPrintf(m_socketfd, "output 1"); // Set LED1 color green
 }
 
@@ -424,17 +394,11 @@ void CLCDproc::writeFusionInt(const std::string& source, const std::string& dest
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeFusionRSSIInt(float rssi)
+void CLCDproc::writeFusionRSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U)
-		socketPrintf(m_socketfd, "widget_set YSF Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
- 
-	m_rssiCount1++;
-	if (m_rssiCount1 >= YSF_RSSI_COUNT)
-		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set YSF Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearFusionInt()
@@ -465,17 +429,11 @@ void CLCDproc::writeP25Int(const std::string& source, bool group, unsigned int d
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeP25RSSIInt(float rssi)
+void CLCDproc::writeP25RSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U)
-		socketPrintf(m_socketfd, "widget_set P25 Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
- 
-	m_rssiCount1++;
- 	if (m_rssiCount1 >= P25_RSSI_COUNT)
- 		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set P25 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearP25Int()
@@ -506,18 +464,11 @@ void CLCDproc::writeNXDNInt(const std::string& source, bool group, unsigned int 
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeNXDNRSSIInt(float rssi)
+void CLCDproc::writeNXDNRSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U) {
-		socketPrintf(m_socketfd, "widget_set NXDN Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
-	}
-
-	m_rssiCount1++;
-	if (m_rssiCount1 >= NXDN_RSSI_COUNT)
-		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set NXDN Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearNXDNInt()
@@ -546,17 +497,11 @@ void CLCDproc::writeM17Int(const std::string& source, const std::string& dest, c
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeM17RSSIInt(float rssi)
+void CLCDproc::writeM17RSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U)
-		socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
-
-	m_rssiCount1++;
-	if (m_rssiCount1 >= M17_RSSI_COUNT)
-		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearM17Int()
@@ -584,17 +529,11 @@ void CLCDproc::writeFMInt(const std::string& status)
 	}
 
 	m_dmr = false;
-	m_rssiCount1 = 0U;
 }
 
-void CLCDproc::writeFMRSSIInt(float rssi)
+void CLCDproc::writeFMRSSIInt(int rssi)
 {
-	if (m_rssiCount1 == 0U)
-		socketPrintf(m_socketfd, "widget_set FM Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
-
-	m_rssiCount1++;
-	if (m_rssiCount1 >= FM_RSSI_COUNT)
-		m_rssiCount1 = 0U;
+	socketPrintf(m_socketfd, "widget_set FM Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 }
 
 void CLCDproc::clearFMInt()
@@ -607,7 +546,7 @@ void CLCDproc::clearFMInt()
 	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
 }
 
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi)
+void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
 {
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -620,7 +559,7 @@ void CLCDproc::writeAX25Int(const std::string& source, const std::string& source
 		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
 	} else {
 		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
+		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
 	}
 
@@ -646,7 +585,7 @@ void CLCDproc::writeAX25Int(const std::string& source, const std::string& source
 	m_dmr = false;
 }
 
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi)
+void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
 {
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -659,7 +598,7 @@ void CLCDproc::writeAX25Int(const std::string& source, const std::string& source
 		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
 	} else {
 		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%.1fdBm\"", m_cols - 1, rssi);
+		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
 		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
 	}
 

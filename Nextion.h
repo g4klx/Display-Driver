@@ -45,34 +45,34 @@ protected:
 	virtual void setQuitInt();
 
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
-	virtual void writeDStarRSSIInt(float rssi);
+	virtual void writeDStarRSSIInt(int rssi);
 	virtual void writeDStarBERInt(float ber);
 	virtual void writeDStarTextInt(const std::string& text);
 	virtual void clearDStarInt();
 
 	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
-	virtual void writeDMRRSSIInt(unsigned int slotNo, float rssi);
+	virtual void writeDMRRSSIInt(unsigned int slotNo, int rssi);
 	virtual void writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias);
 	virtual void writeDMRBERInt(unsigned int slotNo, float ber);
 	virtual void clearDMRInt(unsigned int slotNo);
 
 	virtual void writeFusionInt(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin);
-	virtual void writeFusionRSSIInt(float rssi);
+	virtual void writeFusionRSSIInt(int rssi);
 	virtual void writeFusionBERInt(float ber);
 	virtual void clearFusionInt();
 
 	virtual void writeP25Int(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	virtual void writeP25RSSIInt(float rssi);
+	virtual void writeP25RSSIInt(int rssi);
 	virtual void writeP25BERInt(float ber);
 	virtual void clearP25Int();
 
 	virtual void writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type);
-	virtual void writeNXDNRSSIInt(float rssi);
+	virtual void writeNXDNRSSIInt(int rssi);
 	virtual void writeNXDNBERInt(float ber);
 	virtual void clearNXDNInt();
 
 	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type);
-	virtual void writeM17RSSIInt(float rssi);
+	virtual void writeM17RSSIInt(int rssi);
 	virtual void writeM17BERInt(float ber);
 	virtual void writeM17TextInt(const std::string& text);
 	virtual void clearM17Int();
@@ -81,12 +81,12 @@ protected:
 	virtual void clearPOCSAGInt();
 
 	virtual void writeFMInt(const std::string& state);
-	virtual void writeFMRSSIInt(float rssi);
+	virtual void writeFMRSSIInt(int rssi);
 	virtual void clearFMInt();
 
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi);
 	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, float rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi);
 	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
 	virtual void clearAX25Int();
 
@@ -108,14 +108,6 @@ private:
 	unsigned int   m_idleBrightness;
 	unsigned int   m_screenLayout;
 	CTimer         m_clockDisplayTimer;
-	float          m_rssiAccum1;
-	float          m_rssiAccum2;
-	float          m_berAccum1;
-	float          m_berAccum2;
-	unsigned int   m_rssiCount1;
-	unsigned int   m_rssiCount2;
-	unsigned int   m_berCount1;
-	unsigned int   m_berCount2;
 	bool           m_displayTempInF;
 	CRingBuffer<unsigned char> m_output;
 	CMutex         m_mutex;

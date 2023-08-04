@@ -552,7 +552,7 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 	assert(m_display != NULL);
 
 	std::string mode = json["mode"];
-	float value      = json["value"];
+	int value        = json["value"];
 
 	if (mode == "D-Star") {
 		m_display->writeDStarRSSI(value);
@@ -771,8 +771,8 @@ void CDisplayDriver::parseAX25(const nlohmann::json& json)
 	std::string type           = json["type"];
 	std::string source         = json["source"] == "rf" ? "R" : "N";
 
-	float rssi = 0.0F;
-	if (json["rssi"].is_number())
+	int rssi = 0;
+	if (json["rssi"].is_number_integer())
 		rssi = json["rssi"];
 
 	if (json["pid"].is_string()) {

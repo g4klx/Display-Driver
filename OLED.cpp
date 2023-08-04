@@ -378,21 +378,6 @@ void COLED::setQuitInt()
 	sleep(2);
 }
 
-void COLED::setFMInt()
-{
-	m_mode = MODE_FM;
-
-	m_display.clearDisplay();
-	OLED_statusbar();
-
-	m_display.setCursor(0, 30);
-	m_display.setTextSize(3);
-	m_display.print("FM");
-
-	m_display.setTextSize(1);
-	m_display.display();
-}
-
 void COLED::writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector)
 {
 	m_mode = MODE_DSTAR;

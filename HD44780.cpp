@@ -394,36 +394,6 @@ void CHD44780::setQuitInt()
 	m_dmr = false;
 }
 
-void CHD44780::setFMInt()
-{
-	m_clockDisplayTimer.stop();
-	::lcdClear(m_fd);
-	
-#ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_WHITE);
-#endif
-	if (m_pwm) {
-		if (m_pwmPin != 1U)
-			::softPwmWrite(m_pwmPin, m_pwmDim);
-		else
-			::pwmWrite(m_pwmPin, (m_pwmDim / 100) * 1024);
-	}
-
-	// Print callsign and ID at on top row for all screen sizes
-	::lcdPosition(m_fd, 0, 0);
-	::lcdPrintf(m_fd, "%-6s", m_callsign.c_str());
-	::lcdPosition(m_fd, m_cols - 7, 0);
-	::lcdPrintf(m_fd, "%7u", m_id);
-
-	// Print MMDVM and Idle on bottom row for all screen sizes
-	::lcdPosition(m_fd, 0, m_rows - 1);
-	::lcdPuts(m_fd, "MMDVM");
-	::lcdPosition(m_fd, m_cols - 4, m_rows - 1);
-	::lcdPuts(m_fd, "FM");              // Gets overwritten by clock on 2 line screen
-
-	m_dmr = false;
-}
-
 void CHD44780::writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector)
 {
 #ifdef ADAFRUIT_DISPLAY
@@ -482,11 +452,11 @@ void CHD44780::writeDStarInt(const std::string& my1, const std::string& my2, con
 	m_rssiCount1 = 0U; 
 } 
  
-void CHD44780::writeDStarRSSIInt(unsigned char rssi)
+void CHD44780::writeDStarRSSIInt(int rssi)
 {
 	if (m_rssiCount1 == 0U && m_rows > 2) {
 		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "-%3udBm", rssi);
+		::lcdPrintf(m_fd, "%3ddBm", rssi);
 	}
 
 	m_rssiCount1++;
@@ -647,13 +617,13 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 	m_rssiCount2 = 0U; 
 } 
  
-void CHD44780::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi)
+void CHD44780::writeDMRRSSIInt(unsigned int slotNo, int rssi)
 {
 	if (m_rows > 2) {
 		if (slotNo == 1U) {
 			if (m_rssiCount1 == 0U) {
 				::lcdPosition(m_fd, 0, 3);
-				::lcdPrintf(m_fd, "-%3udBm", rssi);
+				::lcdPrintf(m_fd, "%3ddBm", rssi);
 			}
 
 			m_rssiCount1++;
@@ -662,7 +632,7 @@ void CHD44780::writeDMRRSSIInt(unsigned int slotNo, unsigned char rssi)
 		} else {
 			if (m_rssiCount2 == 0U) {
 				::lcdPosition(m_fd, (m_cols / 2), 3);
-				::lcdPrintf(m_fd, "-%3udBm", rssi);
+				::lcdPrintf(m_fd, "%3ddBm", rssi);
 			}
 
 			m_rssiCount2++;
@@ -761,11 +731,11 @@ void CHD44780::writeFusionInt(const std::string& source, const std::string& dest
 	m_rssiCount1 = 0U; 
 } 
  
-void CHD44780::writeFusionRSSIInt(unsigned char rssi)
+void CHD44780::writeFusionRSSIInt(int rssi)
 {
 	if (m_rssiCount1 == 0U && m_rows > 2) {
 		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "-%3udBm", rssi);
+		::lcdPrintf(m_fd, "%3ddBm", rssi);
 	}
 
 	m_rssiCount1++;
@@ -856,11 +826,11 @@ void CHD44780::writeP25Int(const std::string& source, bool group, unsigned int d
 	m_rssiCount1 = 0U; 
 } 
  
-void CHD44780::writeP25RSSIInt(unsigned char rssi)
+void CHD44780::writeP25RSSIInt(int rssi)
 {
 	if (m_rssiCount1 == 0U && m_rows > 2) {
 		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "-%3udBm", rssi);
+		::lcdPrintf(m_fd, "%3ddBm", rssi);
 	}
 
 	m_rssiCount1++;
@@ -951,11 +921,11 @@ void CHD44780::writeNXDNInt(const std::string& source, bool group, unsigned int 
 	m_rssiCount1 = 0U; 
 } 
  
-void CHD44780::writeNXDNRSSIInt(unsigned char rssi)
+void CHD44780::writeNXDNRSSIInt(int rssi)
 {
 	if (m_rssiCount1 == 0U && m_rows > 2) {
 		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "-%3udBm", rssi);
+		::lcdPrintf(m_fd, "%3ddBm", rssi);
 	}
 
 	m_rssiCount1++;
@@ -1044,11 +1014,11 @@ void CHD44780::writeM17Int(const std::string& source, const std::string& dest, c
 	m_rssiCount1 = 0U; 
 } 
  
-void CHD44780::writeM17RSSIInt(unsigned char rssi)
+void CHD44780::writeM17RSSIInt(int rssi)
 { 
 	if (m_rssiCount1 == 0U && m_rows > 2) {
 		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "-%3udBm", rssi);
+		::lcdPrintf(m_fd, "%3ddBm", rssi);
 	}
 
 	m_rssiCount1++;

@@ -54,7 +54,6 @@ public:
 	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
-	virtual void setFMInt();
   
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
 	virtual void clearDStarInt();
