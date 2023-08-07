@@ -396,37 +396,37 @@ void CNextion::writeDMRTAInt(unsigned int slotNo, const std::string& talkerAlias
 
 	if (slotNo == 1U) {
 		char text[50U];
-		::sprintf(text, "t0.txt=\"1 %s\"", talkerAlias.c_str());
+		::sprintf(text, "t8.txt=\"%s\"", talkerAlias.c_str());
 
 		if (m_screenLayout & LAYOUT_TA_FONTSIZE) {
 			if (talkerAlias.size() > (16U-4U))
-				sendCommand("t0.font=3");
+				sendCommand("t8.font=3");
 			if (talkerAlias.size() > (20U-4U))
-				sendCommand("t0.font=2");
+				sendCommand("t8.font=2");
 			if (talkerAlias.size() > (24U-4U))
-				sendCommand("t0.font=1");
+				sendCommand("t8.font=1");
 		}
 
 		if (m_screenLayout & LAYOUT_TA_COLOUR)
-			sendCommand("t0.pco=1024");
+			sendCommand("t8.pco=1024");
 
 		sendCommand(text);
 		sendCommandAction(63U);
 	} else {
 		char text[50U];
-		::sprintf(text, "t2.txt=\"2 %s\"", talkerAlias.c_str());
+		::sprintf(text, "t9.txt=\"%s\"", talkerAlias.c_str());
 
 		if (m_screenLayout & LAYOUT_TA_FONTSIZE) {
 			if (talkerAlias.size() > (16U-4U))
-				sendCommand("t2.font=3");
+				sendCommand("t9.font=3");
 			if (talkerAlias.size() > (20U-4U))
-				sendCommand("t2.font=2");
+				sendCommand("t9.font=2");
 			if (talkerAlias.size() > (24U-4U))
-				sendCommand("t2.font=1");
+				sendCommand("t9.font=1");
 		}
 
 		if (m_screenLayout & LAYOUT_TA_COLOUR)
-			sendCommand("t2.pco=1024");
+			sendCommand("t9.pco=1024");
 
 		sendCommand(text);
 		sendCommandAction(71U);
@@ -464,6 +464,7 @@ void CNextion::clearDMRInt(unsigned int slotNo)
 		sendCommand("t1.txt=\"\"");
 		sendCommand("t4.txt=\"\"");
 		sendCommand("t6.txt=\"\"");
+		sendCommand("t8.txt=\"\"");
 	} else {
 		sendCommand("t2.txt=\"2 Listening\"");
 		sendCommandAction(69U);
@@ -478,6 +479,7 @@ void CNextion::clearDMRInt(unsigned int slotNo)
 		sendCommand("t3.txt=\"\"");
 		sendCommand("t5.txt=\"\"");
 		sendCommand("t7.txt=\"\"");
+		sendCommand("t9.txt=\"\"");
 	}
 }
 
