@@ -4,4 +4,5 @@
 *.o
 GitVersion.h
 DisplayDriver
+NextionUpdater
 

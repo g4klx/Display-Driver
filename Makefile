@@ -25,18 +25,25 @@ LDFLAGS = -g -L/usr/local/lib
 #CFLAGS  = -g -O3 -Wall -std=c++0x -pthread -DHD44780 -DPCF8574_DISPLAY -I/usr/local/include
 #LIBS    = -lwiringPi -lwiringPiDev -lpthread -lutil -lmosquitto
 
-OBJECTS =	Conf.o Display.o DisplayDriver.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NetworkInfo.o \
+OBJECTS1 =	Conf.o Display.o DisplayDriver.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NetworkInfo.o \
 		Nextion.o OLED.o SerialPort.o StopWatch.o TFTSurenoo.o Thread.o Timer.o UARTController.o Utils.o
 
-all:		DisplayDriver
+OBJECTS2 =	Conf.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NextionUpdater.o SerialPort.o StopWatch.o Thread.o Timer.o \
+		UARTController.o Utils.o
 
-DisplayDriver:	$(OBJECTS) 
-		$(CXX) $(OBJECTS) $(CFLAGS) $(LIBS) -o DisplayDriver
+all:		DisplayDriver NextionUpdater
+
+DisplayDriver:	$(OBJECTS1) 
+		$(CXX) $(OBJECTS1) $(CFLAGS) $(LIBS) -o DisplayDriver
+
+NextionUpdater:	$(OBJECTS2) 
+		$(CXX) $(OBJECTS2) $(CFLAGS) $(LIBS) -o NextionUpdater
 
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
 
 DisplayDriver.o: GitVersion.h FORCE
+NextionUpdater.o: GitVersion.h FORCE
 
 .PHONY: GitVersion.h
 
@@ -44,9 +51,10 @@ FORCE:
 
 install:
 		install -m 755 DisplayDriver /usr/local/bin/
+		install -m 755 NextionUpdater /usr/local/bin/
 
 clean:
-		$(RM) DisplayDriver *.o *.d *.bak *~ GitVersion.h
+		$(RM) DisplayDriver NextionUpdater *.o *.d *.bak *~ GitVersion.h
 
 # Export the current git version if the index file exists, else 000...
 GitVersion.h:

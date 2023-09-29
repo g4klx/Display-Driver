@@ -16,9 +16,40 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if !defined(VERSION_H)
-#define	VERSION_H
+#if !defined(NextionUpdater_H)
+#define	NextionUpdater_H
 
-const char* VERSION = "20230929";
+#include "ModemSerialPort.h"
+#include "SerialPort.h"
+#include "Conf.h"
+
+#include <string>
+
+class CNextionUpdater
+{
+public:
+	CNextionUpdater(const std::string& confFile, const std::string& filename);
+	~CNextionUpdater();
+
+	int run();
+
+private:
+	std::string       m_filename;
+	CConf             m_conf;
+	ISerialPort*      m_serial;
+	CModemSerialPort* m_msp;
+
+	bool createPort();
+
+	bool waitForResponse(bool wait);
+
+	bool uploadFile(FILE* file, long fleSize);
+
+	void writeJSONMessage(const std::string& message);
+
+	void readDisplay(const unsigned char* data, unsigned int length);
+
+	static void onDisplay(const unsigned char* data, unsigned int length);
+};
 
 #endif

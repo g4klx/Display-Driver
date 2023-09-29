@@ -17,7 +17,6 @@
  */
 
 #include "DisplayDriver.h"
-#include "UARTController.h"
 #include "MQTTConnection.h"
 #include "UARTController.h"
 #include "TFTSurenoo.h"
