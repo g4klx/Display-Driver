@@ -36,14 +36,12 @@ public:
 private:
 	std::string       m_filename;
 	CConf             m_conf;
-	ISerialPort*      m_serial;
 	CModemSerialPort* m_msp;
 
-	bool createPort();
+	bool waitForResponse(ISerialPort& serial, bool wait);
 
-	bool waitForResponse(bool wait);
-
-	bool uploadFile(FILE* file, long fleSize);
+	bool uploadViaUART(const std::string& port, FILE* file, long fleSize);
+	bool uploadViaMQTT(FILE* file, long fleSize);
 
 	void writeJSONMessage(const std::string& message);
 

@@ -124,7 +124,6 @@ int main(int argc, char** argv)
 CNextionUpdater::CNextionUpdater(const std::string& confFile, const std::string& filename) :
 m_filename(filename),
 m_conf(confFile),
-m_serial(NULL),
 m_msp(NULL)
 {
 }
@@ -170,52 +169,27 @@ int CNextionUpdater::run()
 
 	writeJSONMessage("NextionUpdater is starting");
 
-	ret = createPort();
-	if (!ret) {
-		LogInfo("Cannot open the serial port");
-		writeJSONMessage("Cannot open the serial port");
-
-		m_serial->close();
-		delete m_serial;
+	std::string type = m_conf.getDisplay();
+	if (type != "Nextion") {
+		LogInfo("Display is not a Nextion");
+		writeJSONMessage("Display is not a Nextion");
 
 		::fclose(file);
 
 		return 1;
 	}
 
-	unsigned int screenLayout = m_conf.getNextionScreenLayout();
-	unsigned int baudrate = 9600U;
-	if (screenLayout == 4U)
-		baudrate = 115200U;
+	std::string port = m_conf.getNextionPort();
+	if (port == "modem")
+		ret = uploadViaMQTT(file, statbuf.st_size);
+	else
+		ret = uploadViaUART(port, file, statbuf.st_size);
 
-	char command[100U];
-	::sprintf(command, "whmi-wri %ld,%u,0\xFF\xFF\xFF", statbuf.st_size, baudrate);
-	m_serial->write((unsigned char*)command, ::strlen(command));
+	::fclose(file);
 
-	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
-
-	ret = waitForResponse(false);
-	if (!ret) {
-		LogInfo("No response to the upload command");
-		writeJSONMessage("No response to the upload command");
-
-		m_serial->close();
-		delete m_serial;
-
-		::fclose(file);
-
-		return 1;
-	}
-
-	ret = uploadFile(file, statbuf.st_size);
 	if (!ret) {
 		LogInfo("File upload failure");
 		writeJSONMessage("File upload failure");
-
-		m_serial->close();
-		delete m_serial;
-
-		::fclose(file);
 
 		return 1;
 	}
@@ -223,45 +197,141 @@ int CNextionUpdater::run()
 	LogInfo("File uploaded");
 	writeJSONMessage("File uploaded");
 
-	m_serial->close();
-	delete m_serial;
-
-	::fclose(file);
-
 	return 0;
 }
 
-bool CNextionUpdater::createPort()
+bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fileSize)
 {
-	std::string type = m_conf.getDisplay();
+	assert(file != NULL);
 
-	if (type == "Nextion") {
-		std::string port          = m_conf.getNextionPort();
-		unsigned int screenLayout = m_conf.getNextionScreenLayout();
+	unsigned int screenLayout = m_conf.getNextionScreenLayout();
 
-		LogInfo("Nextion port: %s", port.c_str());
-
-		if (port == "modem") {
-			m_serial = m_msp = new CModemSerialPort(m_conf.getMMDVMName());
-		} else {
-			unsigned int baudrate = 9600U;
-			if (screenLayout == 4U)
-				baudrate = 115200U;
+	unsigned int baudrate = 9600U;
+	if (screenLayout == 4U)
+		baudrate = 115200U;
 			
-			m_serial = new CUARTController(port, baudrate);
-		}
-	} else {
-		LogError("No Nextion display found");
+	CUARTController serial(port, baudrate);
+	
+	bool ret = serial.open();
+	if (!ret) {
+		LogInfo("Cannot open the serial port");
+		writeJSONMessage("Cannot open the serial port");
+
 		return false;
 	}
 
-	return m_serial->open();
+	char command[100U];
+	::sprintf(command, "whmi-wri %ld,%u,0\xFF\xFF\xFF", fileSize, baudrate);
+	serial.write((unsigned char*)command, ::strlen(command));
+
+	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
+
+	ret = waitForResponse(serial, false);
+	if (!ret) {
+		LogInfo("No response to the upload command");
+		writeJSONMessage("No response to the upload command");
+
+		serial.close();
+		return false;
+	}
+
+	unsigned char buffer[4096U];
+	size_t count = ::fread(buffer, 1U, 4096U, file);
+
+	while (count > 0U) {
+		int n = serial.write(buffer, count);
+		while (n != int(count)) {
+			if (n < 0) {
+				LogInfo("Error from the serial port");
+				writeJSONMessage("Error from the serial port");
+
+				serial.close();
+				return false;
+			}
+
+			count -= n;
+
+			CThread::sleep(10U);
+			n = serial.write(buffer, count);
+		}
+
+		ret = waitForResponse(serial, true);
+		if (!ret) {
+			LogInfo("No response to a data upload");
+			writeJSONMessage("No response to a data upload");
+
+			serial.close();
+			return false;
+		}
+
+		count = ::fread(buffer, 1U, 4096U, file);
+	}
+
+	serial.close();
+	return true;
 }
 
-bool CNextionUpdater::waitForResponse(bool wait)
+bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 {
-	assert(m_serial != NULL);
+	assert(file != NULL);
 
+	m_msp = new CModemSerialPort(m_conf.getMMDVMName());
+
+	bool ret = m_msp->open();
+	if (!ret) {
+		LogInfo("Cannot open the serial port");
+		writeJSONMessage("Cannot open the serial port");
+
+		delete m_msp;
+
+		return false;
+	}
+
+	char command[100U];
+	::sprintf(command, "whmi-wri %ld,9600,0\xFF\xFF\xFF", fileSize);
+	m_msp->write((unsigned char*)command, ::strlen(command));
+
+	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
+
+	ret = waitForResponse(*m_msp, false);
+	if (!ret) {
+		LogInfo("No response to the upload command");
+		writeJSONMessage("No response to the upload command");
+
+		m_msp->close();
+		delete m_msp;
+
+		return false;
+	}
+
+	unsigned char buffer[4096U];
+	size_t count = ::fread(buffer, 1U, 4096U, file);
+
+	while (count > 0U) {
+		m_msp->write(buffer, count);
+
+		ret = waitForResponse(*m_msp, true);
+		if (!ret) {
+			LogInfo("No response to a data upload");
+			writeJSONMessage("No response to a data upload");
+
+			m_msp->close();
+			delete m_msp;
+
+			return false;
+		}
+
+		count = ::fread(buffer, 1U, 4096U, file);
+	}
+
+	m_msp->close();
+	delete m_msp;
+
+	return true;
+}
+
+bool CNextionUpdater::waitForResponse(ISerialPort& serial, bool wait)
+{
 	CStopWatch stopWatch;
 	stopWatch.start();
 
@@ -270,7 +340,7 @@ bool CNextionUpdater::waitForResponse(bool wait)
 
 	while (ms < 500U) {
 		unsigned char c;
-		unsigned int n = m_serial->read(&c, 1U);
+		unsigned int n = serial.read(&c, 1U);
 
 		if (n == 1U) {
 			if (c == 0x05U) {
@@ -286,37 +356,6 @@ bool CNextionUpdater::waitForResponse(bool wait)
 	}
 
 	return found;
-}
-
-bool CNextionUpdater::uploadFile(FILE* file, long fileSize)
-{
-	assert(file != NULL);
-
-	unsigned int sendCount = fileSize / 4096U + 1U;
-	unsigned int lastSize  = fileSize % 4096U;
-
-	do {
-		if (sendCount == 1U) {
-			for (unsigned int i = 0U; i < lastSize; i++) {
-				unsigned char c = ::fgetc(file);
-				m_serial->write(&c, 1U);
-			}
-		} else {
-			for (unsigned int i = 0U; i < 4096U; i++) {
-				unsigned char c = ::fgetc(file);
-				m_serial->write(&c, 1U);
-			}
-		}
-
-		bool ret = waitForResponse(true);
-		if (!ret)
-			return false;
-
-		sendCount--;
-
-	} while (sendCount > 0U);
-
-	return true;
 }
 
 void CNextionUpdater::writeJSONMessage(const std::string& message)
