@@ -51,8 +51,10 @@ public:
 
 	virtual bool open();
 
-	virtual void setIdleInt();
+	virtual void close();
 
+protected:
+	virtual void setIdleInt();
 	virtual void setErrorInt();
 	virtual void setLockoutInt();
 	virtual void setQuitInt();
@@ -80,8 +82,6 @@ public:
 
 	virtual void writeCWInt();
 	virtual void clearCWInt();
-
-	virtual void close();
 
 private:
 	std::string   m_callsign;

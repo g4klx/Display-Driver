@@ -88,7 +88,7 @@ static unsigned char logo_dmr_bmp[] =
 };
 
 //Logo Fusion 128x16
-const unsigned char logo_fusion_bmp [] =
+const unsigned char logo_fusion_bmp[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -109,7 +109,7 @@ const unsigned char logo_fusion_bmp [] =
 };
 
 //Logo P25 128x16px
-const unsigned char logo_P25_bmp [] =
+const unsigned char logo_P25_bmp[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x01, 0xff, 0xff, 0xff, 0xf0, 0x00, 0x03, 0xff, 0xff, 0xc0, 0x01, 0xff, 0xff, 0xff, 0xf8, 0x00,
@@ -130,7 +130,7 @@ const unsigned char logo_P25_bmp [] =
 };
 
 // Logo NXDN_sm, 128x16px
-const unsigned char logo_NXDN_bmp [] =
+const unsigned char logo_NXDN_bmp[] =
 {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -151,7 +151,7 @@ const unsigned char logo_NXDN_bmp [] =
 };
 
 // Logo M17_sm, 128x16px
-const unsigned char logo_M17_bmp [] =
+const unsigned char logo_M17_bmp[] =
 {
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -172,7 +172,7 @@ const unsigned char logo_M17_bmp [] =
 };
 
 // Logo POCASG/DAPNET, 128x16px
-const unsigned char logo_POCSAG_bmp [] =
+const unsigned char logo_POCSAG_bmp[] =
 {
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 0xff, 0xff, 0xff, 0xf8, 0x7f, 0xfe, 0x03, 0xfe, 0xfe, 0x03, 0xdf, 0xf6, 0x00, 0x00, 0x1f, 0xff,
@@ -242,6 +242,7 @@ bool COLED::open()
 	m_display.display();		// display it (clear display)
 
 	OLED_statusbar();
+
 	m_display.setCursor(0, OLED_LINE4);
 	m_display.setTextSize(1);
 	m_display.print("   -Initializing-");
@@ -490,14 +491,12 @@ void COLED::clearDMRInt(unsigned int slotNo)
 			m_display.fillRect(0, OLED_LINE3, m_display.width(), 40, BLACK);
 			m_display.setCursor(0, OLED_LINE3);
 			m_display.print("Slot: 1 Standby");
-		}
-		else {
+		} else {
 			m_display.fillRect(0, OLED_LINE5, m_display.width(), 40, BLACK);
 			m_display.setCursor(0, OLED_LINE5);
 			m_display.print("Slot: 2 Standby");
 		}
-	}
-	else {
+	} else {
 		m_display.fillRect(0, OLED_LINE2, m_display.width(), m_display.height(), BLACK);
 		m_display.setCursor(0, OLED_LINE3);
 		m_display.printf("Slot: %i Standby", slotNo);
@@ -579,10 +578,10 @@ void COLED::writeNXDNInt(const std::string& source, bool group, unsigned int des
 	m_display.clearDisplay();
 	m_display.fillRect(0, OLED_LINE2, m_display.width(), m_display.height(), BLACK);
 
-	m_display.setCursor(0,OLED_LINE2);
-	m_display.printf("%s %s", type, source.c_str());
+	m_display.setCursor(0, OLED_LINE2);
+	m_display.printf("%s %s", type.c_str(), source.c_str());
 
-	m_display.setCursor(0,OLED_LINE3);
+	m_display.setCursor(0, OLED_LINE3);
 	m_display.printf("  %s%u", group ? "TG" : "", dest);
 
 	OLED_statusbar();
@@ -724,7 +723,7 @@ void COLED::writeCWInt()
 	m_display.display();
 
 	if (m_displayScroll)
-		m_display.startscrollleft(0x02,0x0f);
+		m_display.startscrollleft(0x02, 0x0f);
 }
 
 void COLED::clearCWInt()
@@ -795,7 +794,7 @@ void COLED::OLED_statusbar()
 		m_display.drawBitmap(0, 0, logo_glcd_bmp, 128, 16, WHITE);
 
 	if (m_displayScroll)
-		m_display.startscrollleft(0x00,0x01);
+		m_display.startscrollleft(0x00, 0x01);
 }
 
 #endif
