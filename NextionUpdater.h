@@ -38,7 +38,7 @@ private:
 	CConf             m_conf;
 	CModemSerialPort* m_msp;
 
-	bool waitForResponse(ISerialPort& serial, bool wait);
+	bool waitForResponse(ISerialPort& serial, unsigned int timeout, bool wait);
 
 	bool uploadViaUART(const std::string& port, FILE* file, long fleSize);
 	bool uploadViaMQTT(FILE* file, long fleSize);

@@ -226,7 +226,7 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 
 	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
 
-	ret = waitForResponse(serial, false);
+	ret = waitForResponse(serial, 500U, false);
 	if (!ret) {
 		LogInfo("No response to the upload command");
 		writeJSONMessage("No response to the upload command");
@@ -255,7 +255,7 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 			n = serial.write(buffer, count);
 		}
 
-		ret = waitForResponse(serial, true);
+		ret = waitForResponse(serial, 500U, true);
 		if (!ret) {
 			LogInfo("No response to a data upload");
 			writeJSONMessage("No response to a data upload");
@@ -293,7 +293,7 @@ bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 
 	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
 
-	ret = waitForResponse(*m_msp, false);
+	ret = waitForResponse(*m_msp, 500U, false);
 	if (!ret) {
 		LogInfo("No response to the upload command");
 		writeJSONMessage("No response to the upload command");
@@ -310,7 +310,7 @@ bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 	while (count > 0U) {
 		m_msp->write(buffer, count);
 
-		ret = waitForResponse(*m_msp, true);
+		ret = waitForResponse(*m_msp, 4000U, true);
 		if (!ret) {
 			LogInfo("No response to a data upload");
 			writeJSONMessage("No response to a data upload");
@@ -330,7 +330,7 @@ bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 	return true;
 }
 
-bool CNextionUpdater::waitForResponse(ISerialPort& serial, bool wait)
+bool CNextionUpdater::waitForResponse(ISerialPort& serial, unsigned int timeout, bool wait)
 {
 	CStopWatch stopWatch;
 	stopWatch.start();
@@ -338,7 +338,7 @@ bool CNextionUpdater::waitForResponse(ISerialPort& serial, bool wait)
 	unsigned int ms = 0U;
 	bool found = false;
 
-	while (ms < 500U) {
+	while (ms < timeout) {
 		unsigned char c;
 		unsigned int n = serial.read(&c, 1U);
 
