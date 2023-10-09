@@ -192,7 +192,7 @@ const unsigned char logo_POCSAG_bmp[] =
 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 };
 
-COLED::COLED(onst std::string& callsign, unsigned int id, bool duplex, unsigned char displayType, unsigned char displayBrightness, bool displayInvert, bool displayScroll, bool displayRotate, bool displayLogoScreensaver) :
+COLED::COLED(const std::string& callsign, unsigned int id, bool duplex, unsigned char displayType, unsigned char displayBrightness, bool displayInvert, bool displayScroll, bool displayRotate, bool displayLogoScreensaver) :
 CDisplay(),
 m_callsign(callsign),
 m_id(id),
@@ -441,7 +441,7 @@ void COLED::clearDStarInt()
 	m_display.display();
 }
 
-void COLED::writeDMRInt(unsigned int slotNo,const std::string& src, bool group, const std::string& dst, const std::string& type)
+void COLED::writeDMRInt(unsigned int slotNo,const std::string& src, bool group, unsigned int dst, const std::string& type)
 {
 	if (m_mode != MODE_DMR) {
 		m_display.clearDisplay();
@@ -457,13 +457,13 @@ void COLED::writeDMRInt(unsigned int slotNo,const std::string& src, bool group, 
 			m_display.setCursor(0, OLED_LINE2);
 			m_display.printf("%s",src.c_str());
 			m_display.setCursor(0, OLED_LINE3);
-			m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+			m_display.printf("Slot: %i %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 		} else {
 			m_display.fillRect(0, OLED_LINE4, m_display.width(), 40, BLACK);
 			m_display.setCursor(0, OLED_LINE4);
 			m_display.printf("%s", src.c_str());
 			m_display.setCursor(0, OLED_LINE5);
-			m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+			m_display.printf("Slot: %i %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 		}
 
 		m_display.fillRect(0, OLED_LINE6, m_display.width(), 20, BLACK);
@@ -474,7 +474,7 @@ void COLED::writeDMRInt(unsigned int slotNo,const std::string& src, bool group, 
 		m_display.setCursor(0, OLED_LINE2);
 		m_display.printf("%s", src.c_str());
 		m_display.setCursor(0, OLED_LINE3);
-		m_display.printf("Slot: %i %s %s%s", slotNo, type.c_str(), group ? "TG: " : "", dst.c_str());
+		m_display.printf("Slot: %i %s %s%u", slotNo, type.c_str(), group ? "TG: " : "", dst);
 	}
 
 	OLED_statusbar();
@@ -691,6 +691,7 @@ void COLED::writePOCSAGInt(uint32_t ric, const std::string& message)
 		m_display.printf("%s", message.substr(pos, n).c_str());
 		pos += n;
 	}
+
 	m_display.setTextWrap(false);
 
 	OLED_statusbar();
@@ -709,6 +710,36 @@ void COLED::clearPOCSAGInt()
 	m_display.printf("%s", m_ipaddress.c_str());
 
 	m_display.display();
+}
+
+void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
+{
+		writeAX25Int(source, source_cs, destination_cs, type, pid, data);
+}
+
+void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
+{
+}
+
+void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
+{
+		writeAX25Int(source, source_cs, destination_cs, type);
+}
+
+void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
+{
+}
+
+void COLED::clearAX25Int()
+{
+}
+
+void COLED::writeFMInt(const std::string& state)
+{
+}
+
+void COLED::clearFMInt()
+{
 }
 
 void COLED::writeCWInt()

@@ -400,10 +400,10 @@ bool CDisplayDriver::createDisplay()
 #endif
 #if defined(OLED)
 	} else if (type == "OLED") {
-	        unsigned char type       = m_conf.getOLEDType();
-	        unsigned char brightness = m_conf.getOLEDBrightness();
-	        bool          invert     = m_conf.getOLEDInvert();
-	        bool          scroll     = m_conf.getOLEDScroll();
+		unsigned char type       = m_conf.getOLEDType();
+		unsigned char brightness = m_conf.getOLEDBrightness();
+		bool          invert     = m_conf.getOLEDInvert();
+		bool          scroll     = m_conf.getOLEDScroll();
 		bool          rotate     = m_conf.getOLEDRotate();
 		bool          logosaver  = m_conf.getOLEDLogoScreensaver();
 

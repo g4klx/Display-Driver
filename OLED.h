@@ -62,7 +62,7 @@ protected:
 	virtual void writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector);
 	virtual void clearDStarInt();
 
-	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, const std::string& dst, const std::string& type);
+	virtual void writeDMRInt(unsigned int slotNo, const std::string& src, bool group, unsigned int dst, const std::string& type);
 	virtual void clearDMRInt(unsigned int slotNo);
 
 	virtual void writeFusionInt(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin);
@@ -80,6 +80,15 @@ protected:
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
 
+	virtual void writeFMInt(const std::string& state);
+	virtual void clearFMInt();
+
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi);
+	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
+	virtual void clearAX25Int();
+
 	virtual void writeCWInt();
 	virtual void clearCWInt();
 
@@ -96,7 +105,6 @@ private:
 	bool          m_displayScroll;
 	bool          m_displayRotate;
 	bool          m_displayLogoScreensaver;
-	bool          m_duplex;
 	std::string   m_ipaddress;
 	ArduiPi_OLED  m_display;
 
