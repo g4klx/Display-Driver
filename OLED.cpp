@@ -18,8 +18,11 @@
 
 #if defined(OLED)
 
-#include "OLED.h"
 #include "Log.h"
+
+#undef max
+
+#include "OLED.h"
 
 static bool networkInfoInitialized = false;
 static unsigned char passCounter = 0U;
@@ -714,32 +717,86 @@ void COLED::clearPOCSAGInt()
 
 void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
 {
-		writeAX25Int(source, source_cs, destination_cs, type, pid, data);
+	writeAX25Int(source, source_cs, destination_cs, type, pid, data);
 }
 
 void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
 {
+	m_mode = MODE_AX25;
+
+	m_display.setCursor(0, OLED_LINE3);
+	m_display.printf("%s:%s>%s <%s>", source.c_str(), source_cs.c_str(), destination_cs.c_str(), type.c_str());
+
+	m_display.setCursor(0, OLED_LINE4);
+	m_display.printf("PID=0x%s %.6s", pid.c_str(), data.c_str());
+
+	m_display.setCursor(0, OLED_LINE6);
+	m_display.printf("%s", m_ipaddress.c_str());
+
+	OLED_statusbar();
+
+	m_display.display();
 }
 
 void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
 {
-		writeAX25Int(source, source_cs, destination_cs, type);
+	writeAX25Int(source, source_cs, destination_cs, type);
 }
 
 void COLED::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
 {
+	m_mode = MODE_AX25;
+
+	m_display.setCursor(0, OLED_LINE3);
+	m_display.printf("%s:%s>%s <%s>", source.c_str(), source_cs.c_str(), destination_cs.c_str(), type.c_str());
+
+	m_display.setCursor(0, OLED_LINE6);
+	m_display.printf("%s", m_ipaddress.c_str());
+
+	OLED_statusbar();
+
+	m_display.display();
 }
 
 void COLED::clearAX25Int()
 {
+	m_display.fillRect(0, OLED_LINE2, m_display.width(), m_display.height(), BLACK);
+
+	m_display.setCursor(40, OLED_LINE3);
+	m_display.print("Standby");
+
+	m_display.setCursor(0, OLED_LINE6);
+	m_display.printf("%s", m_ipaddress.c_str());
+
+	m_display.display();
 }
 
 void COLED::writeFMInt(const std::string& state)
 {
+	m_mode = MODE_FM;
+
+	m_display.clearDisplay();
+	m_display.fillRect(0, OLED_LINE2, m_display.width(), m_display.height(), BLACK);
+
+	m_display.setCursor(0, OLED_LINE3);
+	m_display.printf("%s", state.c_str());
+
+	OLED_statusbar();
+
+	m_display.display();
 }
 
 void COLED::clearFMInt()
 {
+	m_display.fillRect(0, OLED_LINE2, m_display.width(), m_display.height(), BLACK);
+
+	m_display.setCursor(40, OLED_LINE3);
+	m_display.print("Standby");
+
+	m_display.setCursor(0, OLED_LINE6);
+	m_display.printf("%s", m_ipaddress.c_str());
+
+	m_display.display();
 }
 
 void COLED::writeCWInt()
