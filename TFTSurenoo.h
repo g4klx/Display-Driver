@@ -29,7 +29,7 @@
 class CTFTSurenoo : public CDisplay
 {
 public:
-	CTFTSurenoo(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness);
+	CTFTSurenoo(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness, unsigned int screenLayout);
 	virtual ~CTFTSurenoo();
 
 	virtual bool open();
@@ -88,6 +88,7 @@ private:
 	CTimer        m_refreshTimer;
 	char*         m_lineBuf;
 	char          m_temp[128];
+	unsigned int  m_screenLayout;
 
 	void setLineBuffer(char *buf, const char *text, int maxchar);
 	void setModeLine(const char *text);
