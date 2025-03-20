@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2016,2017 by Tony Corbett G0WFV
- *   Copyright (C) 2018,2020,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2018,2020,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,6 +24,12 @@
 #include "Timer.h"
 
 #include <string>
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <ws2tcpip.h>
+#include <Winsock2.h>
+#endif
+
 
 class CLCDproc : public CDisplay
 {
@@ -96,7 +102,11 @@ private:
 	bool         m_dmr;
 	CTimer       m_clockDisplayTimer;
 
-	int  socketPrintf(int fd, const char *format, ...);
+#if defined(_WIN32) || defined(_WIN64)
+	int  socketPrintf(SOCKET fd, const char* format, ...);
+#else
+	int  socketPrintf(int fd, const char* format, ...);
+#endif
 	void defineScreens();
 };
 

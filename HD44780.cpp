@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2021,2023 by Jonathan Naylor G4KLX & Tony Corbett G0WFV
+ *   Copyright (C) 2016,2017,2018,2020,2021,2023,2025 by Jonathan Naylor G4KLX & Tony Corbett G0WFV
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -223,42 +223,42 @@ void CHD44780::adafruitLCDSetup()
 void CHD44780::adafruitLCDColour(ADAFRUIT_COLOUR colour)
 {
 	switch (colour) {
-		 case AC_OFF:
+		 case ADAFRUIT_COLOUR::OFF:
 		 		::digitalWrite(AF_RED, AF_OFF);
 		 		::digitalWrite(AF_GREEN, AF_OFF);
 		 		::digitalWrite(AF_BLUE, AF_OFF);
 		 		break;
-		 case AC_WHITE:
+		 case ADAFRUIT_COLOUR::WHITE:
 		 		::digitalWrite(AF_RED, AF_ON);
 		 		::digitalWrite(AF_GREEN, AF_ON);
 		 		::digitalWrite(AF_BLUE, AF_ON);
 		 		break;
-		 case AC_RED:
+		 case ADAFRUIT_COLOUR::RED:
 		 		::digitalWrite(AF_RED, AF_ON);
 		 		::digitalWrite(AF_GREEN, AF_OFF);
 		 		::digitalWrite(AF_BLUE, AF_OFF);
 		 		break;
-		 case AC_GREEN:
+		 case ADAFRUIT_COLOUR::GREEN:
 		 		::digitalWrite(AF_RED, AF_OFF);
 		 		::digitalWrite(AF_GREEN, AF_ON);
 		 		::digitalWrite(AF_BLUE, AF_OFF);
 		 		break;
-		 case AC_BLUE:
+		 case ADAFRUIT_COLOUR::BLUE:
 		 		::digitalWrite(AF_RED, AF_OFF);
 		 		::digitalWrite(AF_GREEN, AF_OFF);
 		 		::digitalWrite(AF_BLUE, AF_ON);
 		 		break;
-		 case AC_PURPLE:
+		 case ADAFRUIT_COLOUR::PURPLE:
 		 		::digitalWrite(AF_RED, AF_ON);
 		 		::digitalWrite(AF_GREEN, AF_OFF);
 		 		::digitalWrite(AF_BLUE, AF_ON);
 		 		break;
-		 case AC_YELLOW:
+		 case ADAFRUIT_COLOUR::YELLOW:
 		 		::digitalWrite(AF_RED, AF_ON);
 		 		::digitalWrite(AF_GREEN, AF_ON);
 		 		::digitalWrite(AF_BLUE, AF_OFF);
 		 		break;
-		 case AC_ICE:
+		 case ADAFRUIT_COLOUR::ICE:
 		 		::digitalWrite(AF_RED, AF_OFF);
 		 		::digitalWrite(AF_GREEN, AF_ON);
 		 		::digitalWrite(AF_BLUE, AF_ON);
@@ -298,7 +298,7 @@ void CHD44780::setIdleInt()
 	::lcdClear(m_fd);
 	
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_WHITE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::WHITE);
 #endif
 	if (m_pwm) {
 		if (m_pwmPin != 1U)
@@ -325,7 +325,7 @@ void CHD44780::setIdleInt()
 void CHD44780::setErrorInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -349,7 +349,7 @@ void CHD44780::setErrorInt()
 void CHD44780::setLockoutInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -373,7 +373,7 @@ void CHD44780::setLockoutInt()
 void CHD44780::setQuitInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -397,7 +397,7 @@ void CHD44780::setQuitInt()
 void CHD44780::writeDStarInt(const std::string& my1, const std::string& my2, const std::string& your, const std::string& type, const std::string& reflector)
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -467,7 +467,7 @@ void CHD44780::writeDStarRSSIInt(int rssi)
 void CHD44780::clearDStarInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -486,7 +486,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 		::lcdClear(m_fd);
 
 #ifdef ADAFRUIT_DISPLAY
-		adafruitLCDColour(AC_GREEN);
+		adafruitLCDColour(ADAFRUIT_COLOUR::GREEN);
 #endif
 		if (m_pwm) {
 			if (m_pwmPin != 1U)
@@ -529,7 +529,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 	}
 
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	if (m_duplex) {
 		if (m_rows > 2U) {
@@ -645,7 +645,7 @@ void CHD44780::writeDMRRSSIInt(unsigned int slotNo, int rssi)
 void CHD44780::clearDMRInt(unsigned int slotNo)
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -685,7 +685,7 @@ void CHD44780::clearDMRInt(unsigned int slotNo)
 void CHD44780::writeFusionInt(const std::string& source, const std::string& dest, unsigned char dgid, const std::string& type, const std::string& origin)
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -746,7 +746,7 @@ void CHD44780::writeFusionRSSIInt(int rssi)
 void CHD44780::clearFusionInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -780,7 +780,7 @@ void CHD44780::clearFusionInt()
 void CHD44780::writeP25Int(const std::string& source, bool group, unsigned int dest, const std::string& type)
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 	::lcdClear(m_fd);
@@ -841,7 +841,7 @@ void CHD44780::writeP25RSSIInt(int rssi)
 void CHD44780::clearP25Int()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -875,7 +875,7 @@ void CHD44780::clearP25Int()
 void CHD44780::writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type)
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_RED);
+	adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 
 	m_clockDisplayTimer.stop();           // Stop the clock display
@@ -936,7 +936,7 @@ void CHD44780::writeNXDNRSSIInt(int rssi)
 void CHD44780::clearNXDNInt()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 
@@ -970,7 +970,7 @@ void CHD44780::clearNXDNInt()
 void CHD44780::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
 {
 #ifdef ADAFRUIT_DISPLAY
-		adafruitLCDColour(AC_RED);
+		adafruitLCDColour(ADAFRUIT_COLOUR::RED);
 #endif
 
 	m_clockDisplayTimer.stop();           // Stop the clock display
@@ -1029,7 +1029,7 @@ void CHD44780::writeM17RSSIInt(int rssi)
 void CHD44780::clearM17Int()
 {
 #ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(AC_PURPLE);
+	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
 #endif
 	m_clockDisplayTimer.stop();           // Stop the clock display
 

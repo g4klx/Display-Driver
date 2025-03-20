@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2019 by SASANO Takayoshi JG1UAA
- *   Copyright (C) 2015,2016,2018,2019,2020,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2018,2019,2020,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ static const struct layoutdef Layout[] = {
 #define Y_WIDTH			Layout[m_screenLayout].y_width
 #define ROTATION		Layout[m_screenLayout].rotation
 
-enum LcdColour {
+enum class LcdColour : unsigned char {
 	COLOUR_BLACK, COLOUR_RED, COLOUR_GREEN, COLOUR_BLUE,
 	COLOUR_YELLOW, COLOUR_CYAN, COLOUR_MAGENTA, COLOUR_GREY,
 	COLOUR_DARK_GREY, COLOUR_DARK_RED, COLOUR_DARK_GREEN, COLOUR_DARK_BLUE,
@@ -107,10 +107,10 @@ m_brightness(brightness),
 m_mode(MODE_IDLE),
 m_refresh(false),
 m_refreshTimer(1000U, 0U, REFRESH_PERIOD),
-m_lineBuf(NULL),
+m_lineBuf(nullptr),
 m_screenLayout(screenLayout)
 {
-	assert(serial != NULL);
+	assert(serial != nullptr);
 	assert(brightness >= 0U && brightness <= 255U);
 }
 
@@ -128,7 +128,7 @@ bool CTFTSurenoo::open()
 	}
 
 	m_lineBuf = new char[statusLineOffset(STATUS_LINES)];
-	if (m_lineBuf == NULL) {
+	if (m_lineBuf == nullptr) {
 		LogError("Cannot allocate line buffer");
 		m_serial->close();
 		delete m_serial;
@@ -136,7 +136,7 @@ bool CTFTSurenoo::open()
 	}
 
 	lcdReset();
-	clearScreen(BG_COLOUR);
+	clearScreen(static_cast<unsigned char>(LcdColour::BG_COLOUR));
 	setIdle();
 
 	m_refreshTimer.start();
@@ -459,18 +459,18 @@ void CTFTSurenoo::refreshDisplay()
 	// config display
 	setRotation(ROTATION);
 	setBrightness(m_brightness);
-	setBackground(BG_COLOUR);
+	setBackground(static_cast<unsigned char>(LcdColour::BG_COLOUR));
 	m_serial->write((unsigned char*)m_temp, (unsigned int)::strlen(m_temp));
 	CThread::sleep(5);
 
 	// clear display
 	::snprintf(m_temp, sizeof(m_temp), "BOXF(%d,%d,%d,%d,%d);",
-		   0, 0, X_WIDTH - 1, Y_WIDTH - 1, BG_COLOUR);
-	m_serial->write((unsigned char*)m_temp, ::strlen(m_temp));
+		   0, 0, X_WIDTH - 1, Y_WIDTH - 1, static_cast<unsigned char>(LcdColour::BG_COLOUR));
+	m_serial->write((unsigned char*)m_temp, (unsigned int)::strlen(m_temp));
 
 	// mode line
 	::snprintf(m_temp, sizeof(m_temp), "DCV%d(%d,%d,'%s',%d);",
-		   MODE_FONT_SIZE, 0, 0, m_lineBuf, MODE_COLOUR);
+		   MODE_FONT_SIZE, 0, 0, m_lineBuf, static_cast<unsigned char>(LcdColour::MODE_COLOUR));
 	m_serial->write((unsigned char*)m_temp, (unsigned int)::strlen(m_temp));
 
 	// status line
@@ -481,7 +481,7 @@ void CTFTSurenoo::refreshDisplay()
 		::snprintf(m_temp, sizeof(m_temp), "DCV%d(%d,%d,'%s',%d);",
 			   STATUS_FONT_SIZE, 0,
 			   STATUS_MARGIN + STATUS_FONT_SIZE * i, p,
-			   (!m_duplex && i >= INFO_LINES) ? EXT_COLOUR : INFO_COLOUR);
+			   (!m_duplex && i >= INFO_LINES) ? static_cast<unsigned char>(LcdColour::EXT_COLOUR) : static_cast<unsigned char>(LcdColour::INFO_COLOUR));
 		m_serial->write((unsigned char*)m_temp, (unsigned int)::strlen(m_temp));
 	}
 

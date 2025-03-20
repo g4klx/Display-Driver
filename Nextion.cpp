@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2016,2017,2018,2020,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -56,10 +56,10 @@ m_clockDisplayTimer(1000U, 0U, 400U),
 m_displayTempInF(displayTempInF),
 m_output(200U, "Nextion buffer"),
 m_mutex(),
-m_reply(NULL),
+m_reply(nullptr),
 m_waiting(false)
 {
-	assert(serial != NULL);
+	assert(serial != nullptr);
 	assert(brightness >= 0U && brightness <= 100U);
 
 	static const unsigned int feature_set[] = {
@@ -137,7 +137,7 @@ void CNextion::setIdleInt()
 
 		// CPU temperature
 		FILE* fp = ::fopen("/sys/class/thermal/thermal_zone0/temp", "rt");
-		if (fp != NULL) {
+		if (fp != nullptr) {
 			double val = 0.0;
 			int n = ::fscanf(fp, "%lf", &val);
 			::fclose(fp);
@@ -902,7 +902,7 @@ void CNextion::clearCWInt()
 
 void CNextion::clockInt(unsigned int ms)
 {
-	assert(m_serial != NULL);
+	assert(m_serial != nullptr);
 
 	// Update the clock display in IDLE mode every 400ms
 	m_clockDisplayTimer.clock(ms);

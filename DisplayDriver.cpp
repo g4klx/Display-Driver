@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ static bool m_reload = false;
 // In Log.cpp
 extern CMQTTConnection* m_mqtt;
 
-CDisplayDriver* driver = NULL;
+CDisplayDriver* driver = nullptr;
 
 #if !defined(_WIN32) && !defined(_WIN64)
 static void sigHandler1(int signum)
@@ -140,8 +140,8 @@ int main(int argc, char** argv)
 
 CDisplayDriver::CDisplayDriver(const std::string& confFile) :
 m_conf(confFile),
-m_display(NULL),
-m_msp(NULL)
+m_display(nullptr),
+m_msp(nullptr)
 {
 }
 
@@ -185,7 +185,7 @@ int CDisplayDriver::run()
 		// If we are currently root...
 		if (getuid() == 0) {
 			struct passwd* user = ::getpwnam("mmdvm");
-			if (user == NULL) {
+			if (user == nullptr) {
 				::fprintf(stderr, "Could not get the mmdvm user, exiting\n");
 				return -1;
 			}
@@ -286,7 +286,7 @@ bool CDisplayDriver::createDisplay()
 		LogInfo("    Brightness: %u", brightness);
 		LogInfo("    Screen Layout: %u", screenLayout);
 
-		ISerialPort* serial = NULL;
+		ISerialPort* serial = nullptr;
 		if (port == "modem")
 			serial = m_msp = new CModemSerialPort(m_conf.getMMDVMName());
 		else
@@ -437,10 +437,10 @@ void CDisplayDriver::writeJSONMessage(const std::string& message)
 
 void CDisplayDriver::readDisplay(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
 
-	if (m_msp != NULL)
+	if (m_msp != nullptr)
 		m_msp->readData(data, length);
 }
 
@@ -534,7 +534,7 @@ void CDisplayDriver::readJSON(const std::string& text)
 
 void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string mode = json["mode"];
 
@@ -550,7 +550,7 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 
 void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string mode = json["mode"];
 	int value        = json["value"];
@@ -575,7 +575,7 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 
 void CDisplayDriver::parseBER(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string mode = json["mode"];
 	float value      = json["value"];
@@ -598,7 +598,7 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 
 void CDisplayDriver::parseText(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string mode = json["mode"];
 	if (mode == "D-Star") {
@@ -616,7 +616,7 @@ void CDisplayDriver::parseText(const nlohmann::json& json)
 
 void CDisplayDriver::parseDStar(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -634,7 +634,7 @@ void CDisplayDriver::parseDStar(const nlohmann::json& json)
 
 void CDisplayDriver::parseDMR(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -654,7 +654,7 @@ void CDisplayDriver::parseDMR(const nlohmann::json& json)
 
 void CDisplayDriver::parseYSF(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -671,7 +671,7 @@ void CDisplayDriver::parseYSF(const nlohmann::json& json)
 
 void CDisplayDriver::parseP25(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -689,7 +689,7 @@ void CDisplayDriver::parseP25(const nlohmann::json& json)
 
 void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -707,7 +707,7 @@ void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 
 void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string functional = json["functional"];
 	if (functional == "end") {
@@ -721,7 +721,7 @@ void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 
 void CDisplayDriver::parseM17(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string action = json["action"];
 	if (action == "start" || action == "late_entry") {
@@ -737,7 +737,7 @@ void CDisplayDriver::parseM17(const nlohmann::json& json)
 
 void CDisplayDriver::parseFM(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string state = json["state"];
 
@@ -765,7 +765,7 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 
 void CDisplayDriver::parseAX25(const nlohmann::json& json)
 {
-	assert(m_display != NULL);
+	assert(m_display != nullptr);
 
 	std::string source_cs      = json["source_cs"];
 	std::string destination_cs = json["destination_cs"];
@@ -794,18 +794,18 @@ void CDisplayDriver::parseAX25(const nlohmann::json& json)
 
 void CDisplayDriver::onDisplay(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
-	assert(driver != NULL);
+	assert(driver != nullptr);
 
 	driver->readDisplay(data, length);
 }
 
 void CDisplayDriver::onJSON(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
-	assert(driver != NULL);
+	assert(driver != nullptr);
 
 	driver->readJSON(std::string((char*)data, length));
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,16 +26,16 @@
 
 const int BUFFER_SIZE = 500;
 
-enum SECTION {
-	SECTION_NONE,
-	SECTION_GENERAL,
-	SECTION_LOG,
-	SECTION_MQTT,
-	SECTION_TFTSERIAL,
-	SECTION_HD44780,
-	SECTION_NEXTION,
-	SECTION_OLED,
-	SECTION_LCDPROC
+enum class SECTION {
+	NONE,
+	GENERAL,
+	LOG,
+	MQTT,
+	TFTSERIAL,
+	HD44780,
+	NEXTION,
+	OLED,
+	LCDPROC
 };
 
 CConf::CConf(const std::string& file) :
@@ -94,47 +94,47 @@ CConf::~CConf()
 bool CConf::read()
 {
 	FILE* fp = ::fopen(m_file.c_str(), "rt");
-	if (fp == NULL) {
+	if (fp == nullptr) {
 		::fprintf(stderr, "Couldn't open the .ini file - %s\n", m_file.c_str());
 		return false;
 	}
 
-	SECTION section = SECTION_NONE;
+	SECTION section = SECTION::NONE;
 
 	char buffer[BUFFER_SIZE];
-	while (::fgets(buffer, BUFFER_SIZE, fp) != NULL) {
+	while (::fgets(buffer, BUFFER_SIZE, fp) != nullptr) {
 		if (buffer[0U] == '#')
 			continue;
 
 		if (buffer[0U] == '[') {
 			if (::strncmp(buffer, "[General]", 9U) == 0)
-				section = SECTION_GENERAL;
+				section = SECTION::GENERAL;
 			else if (::strncmp(buffer, "[Log]", 5U) == 0)
-				section = SECTION_LOG;
+				section = SECTION::LOG;
 			else if (::strncmp(buffer, "[MQTT]", 6U) == 0)
-				section = SECTION_MQTT;
+				section = SECTION::MQTT;
 			else if (::strncmp(buffer, "[TFT Serial]", 12U) == 0)
-				section = SECTION_TFTSERIAL;
+				section = SECTION::TFTSERIAL;
 			else if (::strncmp(buffer, "[HD44780]", 9U) == 0)
-				section = SECTION_HD44780;
+				section = SECTION::HD44780;
 			else if (::strncmp(buffer, "[Nextion]", 9U) == 0)
-				section = SECTION_NEXTION;
+				section = SECTION::NEXTION;
 			else if (::strncmp(buffer, "[OLED]", 6U) == 0)
-				section = SECTION_OLED;
+				section = SECTION::OLED;
 			else if (::strncmp(buffer, "[LCDproc]", 9U) == 0)
-				section = SECTION_LCDPROC;
+				section = SECTION::LCDPROC;
 			else
-				section = SECTION_NONE;
+				section = SECTION::NONE;
 
 			continue;
 		}
 
 		char* key = ::strtok(buffer, " \t=\r\n");
-		if (key == NULL)
+		if (key == nullptr)
 			continue;
 
-		char* value = ::strtok(NULL, "\r\n");
-		if (value == NULL)
+		char* value = ::strtok(nullptr, "\r\n");
+		if (value == nullptr)
 			continue;
 
 		// Remove quotes from the value
@@ -146,7 +146,7 @@ bool CConf::read()
 			char *p;
 
 			// if value is not quoted, remove after # (to make comment)
-			if ((p = strchr(value, '#')) != NULL)
+			if ((p = strchr(value, '#')) != nullptr)
 				*p = '\0';
 
 			// remove trailing tab/space
@@ -154,7 +154,7 @@ bool CConf::read()
 				*p = '\0';
 		}
 
-		if (section == SECTION_GENERAL) {
+		if (section == SECTION::GENERAL) {
 			if (::strcmp(key, "Callsign") == 0) {
 				// Convert the callsign to upper case
 				for (unsigned int i = 0U; value[i] != 0; i++)
@@ -170,12 +170,12 @@ bool CConf::read()
 				m_display = value;
 			else if (::strcmp(key, "Daemon") == 0)
 				m_daemon = ::atoi(value) == 1;
-		} else if (section == SECTION_LOG) {
+		} else if (section == SECTION::LOG) {
 			if (::strcmp(key, "MQTTLevel") == 0)
 				m_logMQTTLevel = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "DisplayLevel") == 0)
 				m_logDisplayLevel = (unsigned int)::atoi(value);
-		} else if (section == SECTION_MQTT) {
+		} else if (section == SECTION::MQTT) {
 			if (::strcmp(key, "Host") == 0)
 				m_mqttHost = value;
 			else if (::strcmp(key, "Port") == 0)
@@ -184,20 +184,20 @@ bool CConf::read()
 				m_mqttKeepalive = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Name") == 0)
 				m_mqttName = value;
-		} else if (section == SECTION_TFTSERIAL) {
+		} else if (section == SECTION::TFTSERIAL) {
 			if (::strcmp(key, "Port") == 0)
 				m_tftSerialPort = value;
 			else if (::strcmp(key, "Brightness") == 0)
 				m_tftSerialBrightness = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "ScreenLayout") == 0)
 				m_tftSerialScreenLayout = (unsigned int)::atoi(value);
-		} else if (section == SECTION_HD44780) {
+		} else if (section == SECTION::HD44780) {
 			if (::strcmp(key, "Rows") == 0)
 				m_hd44780Rows = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Columns") == 0)
 				m_hd44780Columns = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "I2CAddress") == 0)
-				m_hd44780i2cAddress = (unsigned int)::strtoul(value, NULL, 16);
+				m_hd44780i2cAddress = (unsigned int)::strtoul(value, nullptr, 16);
 			else if (::strcmp(key, "PWM") == 0)
 				m_hd44780PWM = ::atoi(value) == 1;
 			else if (::strcmp(key, "PWMPin") == 0)
@@ -212,13 +212,13 @@ bool CConf::read()
 				m_hd44780UTC = ::atoi(value) == 1;
 			else if (::strcmp(key, "Pins") == 0) {
 				char* p = ::strtok(value, ",\r\n");
-				while (p != NULL) {
+				while (p != nullptr) {
 					unsigned int pin = (unsigned int)::atoi(p);
 					m_hd44780Pins.push_back(pin);
-					p = ::strtok(NULL, ",\r\n");
+					p = ::strtok(nullptr, ",\r\n");
 				}
 			}
-		} else if (section == SECTION_NEXTION) {
+		} else if (section == SECTION::NEXTION) {
 			if (::strcmp(key, "Port") == 0)
 				m_nextionPort = value;
 			else if (::strcmp(key, "Brightness") == 0)
@@ -230,10 +230,10 @@ bool CConf::read()
 			else if (::strcmp(key, "IdleBrightness") == 0)
 				m_nextionIdleBrightness = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "ScreenLayout") == 0)
-				m_nextionScreenLayout = (unsigned int)::strtoul(value, NULL, 0);
+				m_nextionScreenLayout = (unsigned int)::strtoul(value, nullptr, 0);
 			else if (::strcmp(key, "DisplayTempInFahrenheit") == 0)
 				m_nextionTempInFahrenheit = ::atoi(value) == 1;
-		} else if (section == SECTION_OLED) {
+		} else if (section == SECTION::OLED) {
 			if (::strcmp(key, "Type") == 0)
 				m_oledType = (unsigned char)::atoi(value);
 			else if (::strcmp(key, "Brightness") == 0)
@@ -246,7 +246,7 @@ bool CConf::read()
 				m_oledRotate = ::atoi(value) == 1;
 			else if (::strcmp(key, "LogoScreensaver") == 0)
 				m_oledLogoScreensaver = ::atoi(value) == 1;
-		} else if (section == SECTION_LCDPROC) {
+		} else if (section == SECTION::LCDPROC) {
 			if (::strcmp(key, "Address") == 0)
 				m_lcdprocAddress = value;
 			else if (::strcmp(key, "Port") == 0)

@@ -2,7 +2,12 @@
 *.a
 *~
 *.o
+*.user
 GitVersion.h
 DisplayDriver
 NextionUpdater
+x64
+Debug
+Release
+.vs
 

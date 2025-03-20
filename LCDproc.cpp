@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2016,2017,2018 by Tony Corbett G0WFV
- *   Copyright (C) 2018,2020,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2018,2020,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -73,11 +73,16 @@
 #include <stdarg.h>
 #else
 #include <ws2tcpip.h>
+#include <WinSock2.h>
 #endif
 
 #define BUFFER_MAX_LEN 128
 
+#if defined(_WIN32) || defined(_WIN64)
+SOCKET         m_socketfd;
+#else
 int            m_socketfd;
+#endif
 char           m_buffer[BUFFER_MAX_LEN];
 fd_set         m_readfds, m_writefds;
 struct timeval m_timeout;
@@ -130,13 +135,13 @@ bool CLCDproc::open()
 		LogError("LCDproc, cannot lookup server");
 		return false;
 	}
-	::memcpy(&serverAddress, res->ai_addr, addrlen = res->ai_addrlen);
+	::memcpy(&serverAddress, res->ai_addr, addrlen = (unsigned int)res->ai_addrlen);
 	::freeaddrinfo(res);
 
 	/* Lookup the client address (random port - need to specify manual port from ini file) */
 	hints.ai_flags = AI_NUMERICSERV | AI_PASSIVE;
 	hints.ai_family = serverAddress.ss_family;
-	err = ::getaddrinfo(NULL, localPort.c_str(), &hints, &res);
+	err = ::getaddrinfo(nullptr, localPort.c_str(), &hints, &res);
 	if (err) {
 		LogError("LCDproc, cannot lookup client");
 		return false;
@@ -697,7 +702,7 @@ void CLCDproc::clockInt(unsigned int ms)
 	 * exceptfds = we are not waiting for exception fds
 	 */
 
-	if (::select(m_socketfd + 1, &m_readfds, NULL, NULL, &m_timeout) == -1)
+	if (::select(int(m_socketfd) + 1, &m_readfds, nullptr, nullptr, &m_timeout) == -1)
 		LogError("LCDproc, error on select");
 
 	// If something was received from the server...
@@ -789,7 +794,11 @@ void CLCDproc::close()
 {
 }
 
-int CLCDproc::socketPrintf(int fd, const char *format, ...)
+#if defined(_WIN32) || defined(_WIN64)
+int CLCDproc::socketPrintf(SOCKET fd, const char* format, ...)
+#else
+int CLCDproc::socketPrintf(int fd, const char* format, ...)
+#endif
 {
 	char buf[BUFFER_MAX_LEN];
 	va_list ap;
@@ -812,7 +821,7 @@ int CLCDproc::socketPrintf(int fd, const char *format, ...)
 	m_timeout.tv_sec = 0;
 	m_timeout.tv_usec = 0;
 
-	if (select(m_socketfd + 1, NULL, &m_writefds, NULL, &m_timeout) == -1)
+	if (select(int(m_socketfd) + 1, nullptr, &m_writefds, nullptr, &m_timeout) == -1)
 		LogError("LCDproc, error on select");
 
 	if (FD_ISSET(m_socketfd, &m_writefds)) {

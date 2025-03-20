@@ -1,5 +1,5 @@
 /*
-*   Copyright (C) 2016,2020,2021,2023 by Jonathan Naylor G4KLX
+*   Copyright (C) 2016,2020,2021,2023,2025 by Jonathan Naylor G4KLX
 *
 *   This program is free software; you can redistribute it and/or modify
 *   it under the terms of the GNU General Public License as published by
@@ -43,9 +43,9 @@ bool CModemSerialPort::open()
 
 int CModemSerialPort::write(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
-	assert(m_mqtt != NULL);
+	assert(m_mqtt != nullptr);
 
 	m_mqtt->publish(m_serialName.c_str(), data, length);
 
@@ -54,7 +54,7 @@ int CModemSerialPort::write(const unsigned char* data, unsigned int length)
 
 int CModemSerialPort::read(unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
 
 	unsigned int len = m_buffer.dataSize();
@@ -76,7 +76,7 @@ void CModemSerialPort::close()
 
 void CModemSerialPort::readData(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
 
 	m_buffer.addData(data, length);

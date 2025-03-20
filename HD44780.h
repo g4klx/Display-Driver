@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2021,2023 by Jonathan Naylor G4KLX & Tony Corbett G0WFV
+ *   Copyright (C) 2016,2017,2018,2020,2021,2023,2025 by Jonathan Naylor G4KLX & Tony Corbett G0WFV
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,15 +30,15 @@
 #include <mcp23017.h>
 #include <pcf8574.h>
 
-enum ADAFRUIT_COLOUR {
-	AC_OFF,
-	AC_WHITE,
-	AC_RED,
-	AC_GREEN,
-	AC_BLUE,
-	AC_PURPLE,
-	AC_YELLOW,
-	AC_ICE
+enum class ADAFRUIT_COLOUR {
+	OFF,
+	WHITE,
+	RED,
+	GREEN,
+	BLUE,
+	PURPLE,
+	YELLOW,
+	ICE
 };
 
 // Defines for the Adafruit Pi LCD interface board

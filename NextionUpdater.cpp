@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -52,10 +52,10 @@ const char* DEFAULT_INI_FILE = "/etc/NextionUpdater.ini";
 // In Log.cpp
 extern CMQTTConnection* m_mqtt;
 
-CNextionUpdater* driver = NULL;
+CNextionUpdater* driver = nullptr;
 
 #if defined(_WIN32) || defined(_WIN64)
-char* optarg = NULL;
+char* optarg = nullptr;
 int optind = 1;
 
 int getopt(int argc, char* const argv[], const char* optstring)
@@ -66,7 +66,7 @@ int getopt(int argc, char* const argv[], const char* optstring)
 	int opt = argv[optind][1];
 	const char *p = strchr(optstring, opt);
 
-	if (p == NULL) {
+	if (p == nullptr) {
 		return '?';
 	}
 
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 CNextionUpdater::CNextionUpdater(const std::string& confFile, const std::string& filename) :
 m_filename(filename),
 m_conf(confFile),
-m_msp(NULL)
+m_msp(nullptr)
 {
 }
 
@@ -141,7 +141,7 @@ int CNextionUpdater::run()
 	}
 
 	FILE* file = ::fopen(m_filename.c_str(), "rb");
-	if (file == NULL) {
+	if (file == nullptr) {
 		::fprintf(stderr, "NextionUpdater: cannot read the firmware file\n");
 		return 1;
 	}
@@ -202,7 +202,7 @@ int CNextionUpdater::run()
 
 bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fileSize)
 {
-	assert(file != NULL);
+	assert(file != nullptr);
 
 	unsigned int screenLayout = m_conf.getNextionScreenLayout();
 
@@ -222,9 +222,9 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 
 	char command[100U];
 	::sprintf(command, "whmi-wri %ld,%u,0\xFF\xFF\xFF", fileSize, baudrate);
-	serial.write((unsigned char*)command, ::strlen(command));
+	serial.write((unsigned char*)command, (unsigned int)::strlen(command));
 
-	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
+	CUtils::dump(1U, "Nextion command", (unsigned char*)command, (unsigned int)::strlen(command));
 
 	ret = waitForResponse(serial, 500U, false);
 	if (!ret) {
@@ -239,7 +239,7 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 	size_t count = ::fread(buffer, 1U, 4096U, file);
 
 	while (count > 0U) {
-		int n = serial.write(buffer, count);
+		int n = serial.write(buffer, (unsigned int)count);
 		while (n != int(count)) {
 			if (n < 0) {
 				LogInfo("Error from the serial port");
@@ -252,7 +252,7 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 			count -= n;
 
 			CThread::sleep(10U);
-			n = serial.write(buffer, count);
+			n = serial.write(buffer, (unsigned int)count);
 		}
 
 		ret = waitForResponse(serial, 500U, true);
@@ -273,7 +273,7 @@ bool CNextionUpdater::uploadViaUART(const std::string& port, FILE* file, long fi
 
 bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 {
-	assert(file != NULL);
+	assert(file != nullptr);
 
 	m_msp = new CModemSerialPort(m_conf.getMMDVMName());
 
@@ -289,9 +289,9 @@ bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 
 	char command[100U];
 	::sprintf(command, "whmi-wri %ld,9600,0\xFF\xFF\xFF", fileSize);
-	m_msp->write((unsigned char*)command, ::strlen(command));
+	m_msp->write((unsigned char*)command, (unsigned int)::strlen(command));
 
-	CUtils::dump(1U, "Nextion command", (unsigned char*)command, ::strlen(command));
+	CUtils::dump(1U, "Nextion command", (unsigned char*)command, (unsigned int)::strlen(command));
 
 	ret = waitForResponse(*m_msp, 500U, false);
 	if (!ret) {
@@ -308,7 +308,7 @@ bool CNextionUpdater::uploadViaMQTT(FILE* file, long fileSize)
 	size_t count = ::fread(buffer, 1U, 4096U, file);
 
 	while (count > 0U) {
-		m_msp->write(buffer, count);
+		m_msp->write(buffer, (unsigned int)count);
 
 		ret = waitForResponse(*m_msp, 4000U, true);
 		if (!ret) {
@@ -370,18 +370,18 @@ void CNextionUpdater::writeJSONMessage(const std::string& message)
 
 void CNextionUpdater::readDisplay(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
 
-	if (m_msp != NULL)
+	if (m_msp != nullptr)
 		m_msp->readData(data, length);
 }
 
 void CNextionUpdater::onDisplay(const unsigned char* data, unsigned int length)
 {
-	assert(data != NULL);
+	assert(data != nullptr);
 	assert(length > 0U);
-	assert(driver != NULL);
+	assert(driver != nullptr);
 
 	driver->readDisplay(data, length);
 }
