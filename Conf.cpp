@@ -48,10 +48,13 @@ m_display("Nextion"),
 m_daemon(false),
 m_logMQTTLevel(0U),
 m_logDisplayLevel(0U),
-m_mqttHost("127.0.0.1"),
+m_mqttAddress("127.0.0.1"),
 m_mqttPort(1883),
 m_mqttKeepalive(60U),
 m_mqttName("display-driver"),
+m_mqttAuthEnabled(false),
+m_mqttUsername(),
+m_mqttPassword(),
 m_tftSerialPort("/dev/ttyAMA0"),
 m_tftSerialBrightness(50U),
 m_tftSerialScreenLayout(0U),
@@ -177,13 +180,19 @@ bool CConf::read()
 				m_logDisplayLevel = (unsigned int)::atoi(value);
 		} else if (section == SECTION::MQTT) {
 			if (::strcmp(key, "Host") == 0)
-				m_mqttHost = value;
+				m_mqttAddress = value;
 			else if (::strcmp(key, "Port") == 0)
 				m_mqttPort = (unsigned short)::atoi(value);
 			else if (::strcmp(key, "Keepalive") == 0)
 				m_mqttKeepalive = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Name") == 0)
 				m_mqttName = value;
+			else if (::strcmp(key, "Auth") == 0)
+				m_mqttAuthEnabled = ::atoi(value) == 1;
+			else if (::strcmp(key, "Username") == 0)
+				m_mqttUsername = value;
+			else if (::strcmp(key, "Password") == 0)
+				m_mqttPassword = value;
 		} else if (section == SECTION::TFTSERIAL) {
 			if (::strcmp(key, "Port") == 0)
 				m_tftSerialPort = value;
@@ -307,9 +316,9 @@ unsigned int CConf::getLogDisplayLevel() const
 	return m_logDisplayLevel;
 }
 
-std::string CConf::getMQTTHost() const
+std::string CConf::getMQTTAddress() const
 {
-	return m_mqttHost;
+	return m_mqttAddress;
 }
 
 unsigned short CConf::getMQTTPort() const
@@ -325,6 +334,21 @@ unsigned int CConf::getMQTTKeepalive() const
 std::string CConf::getMQTTName() const
 {
 	return m_mqttName;
+}
+
+bool CConf::getMQTTAuthEnabled() const
+{
+	return m_mqttAuthEnabled;
+}
+
+std::string CConf::getMQTTUsername() const
+{
+	return m_mqttUsername;
+}
+
+std::string CConf::getMQTTPassword() const
+{
+	return m_mqttPassword;
 }
 
 std::string CConf::getTFTSerialPort() const

@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{01fd484d-e92a-4a73-a088-3d22f4be7a25}</ProjectGuid>
-    <RootNamespace>DisplayDriver</RootNamespace>
+    <ProjectGuid>{59172a47-e19c-4e00-a426-73c1564b110f}</ProjectGuid>
+    <RootNamespace>NextionUpdater</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -72,19 +72,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <CustomBuildBeforeTargets />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <CustomBuildBeforeTargets />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <CustomBuildBeforeTargets />
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,11 +94,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files\mosquitto\devel</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;mosquitto.lib</AdditionalDependencies>
+      <AdditionalDependencies>mosquitto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>"$(ProjectDir)prebuild.cmd" $(ProjectDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -120,11 +113,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files\mosquitto\devel</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;mosquitto.lib</AdditionalDependencies>
+      <AdditionalDependencies>mosquitto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>"$(ProjectDir)prebuild.cmd" $(ProjectDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -138,11 +128,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files\mosquitto\devel</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;mosquitto.lib</AdditionalDependencies>
+      <AdditionalDependencies>mosquitto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>"$(ProjectDir)prebuild.cmd" $(ProjectDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -160,54 +147,30 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Program Files\mosquitto\devel</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ws2_32.lib;mosquitto.lib</AdditionalDependencies>
+      <AdditionalDependencies>mosquitto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>"$(ProjectDir)prebuild.cmd" $(ProjectDir)</Command>
-    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Conf.h" />
-    <ClInclude Include="Defines.h" />
-    <ClInclude Include="Display.h" />
-    <ClInclude Include="DisplayDriver.h" />
-    <ClInclude Include="HD44780.h" />
-    <ClInclude Include="LCDproc.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="ModemSerialPort.h" />
     <ClInclude Include="MQTTConnection.h" />
-    <ClInclude Include="Mutex.h" />
-    <ClInclude Include="NetworkInfo.h" />
-    <ClInclude Include="Nextion.h" />
-    <ClInclude Include="OLED.h" />
-    <ClInclude Include="RingBuffer.h" />
+    <ClInclude Include="NextionUpdater.h" />
     <ClInclude Include="SerialPort.h" />
     <ClInclude Include="StopWatch.h" />
-    <ClInclude Include="TFTSurenoo.h" />
     <ClInclude Include="Thread.h" />
-    <ClInclude Include="Timer.h" />
     <ClInclude Include="UARTController.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="Version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Conf.cpp" />
-    <ClCompile Include="Display.cpp" />
-    <ClCompile Include="DisplayDriver.cpp" />
-    <ClCompile Include="HD44780.cpp" />
-    <ClCompile Include="LCDproc.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="ModemSerialPort.cpp" />
     <ClCompile Include="MQTTConnection.cpp" />
-    <ClCompile Include="Mutex.cpp" />
-    <ClCompile Include="NetworkInfo.cpp" />
-    <ClCompile Include="Nextion.cpp" />
-    <ClCompile Include="OLED.cpp" />
+    <ClCompile Include="NextionUpdater.cpp" />
     <ClCompile Include="SerialPort.cpp" />
     <ClCompile Include="StopWatch.cpp" />
-    <ClCompile Include="TFTSurenoo.cpp" />
     <ClCompile Include="Thread.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="UARTController.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>

@@ -47,9 +47,6 @@
     <ClInclude Include="Nextion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NextionUpdater.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OLED.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,9 +110,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Nextion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NextionUpdater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OLED.cpp">
