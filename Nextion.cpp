@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2016,2017,2018,2020,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -642,67 +642,6 @@ void CNextion::clearNXDNInt()
 	sendCommand("t3.txt=\"\"");
 }
 
-void CNextion::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
-{
-	if (m_mode != MODE_M17) {
-		sendCommand("page M17");
-		sendCommandAction(8U);
-	}
-
-	char text[30U];
-	if (m_brightness > 0) {
-		::sprintf(text, "dim=%u", m_brightness);
-		sendCommand(text);
-	}
-
-	::sprintf(text, "t0.txt=\"%s %.10s\"", type.c_str(), source.c_str());
-	sendCommand(text);
-	sendCommandAction(142U);
-
-	::sprintf(text, "t1.txt=\"%s\"", dest.c_str());
-	sendCommand(text);
-	sendCommandAction(143U);
-
-	m_clockDisplayTimer.stop();
-
-	m_mode = MODE_M17;
-}
-
-void CNextion::writeM17RSSIInt(int rssi)
-{
-	char text[25U];
-	::sprintf(text, "t2.txt=\"%ddBm\"", rssi);
-	sendCommand(text);
-	sendCommandAction(144U);
-}
-
-void CNextion::writeM17BERInt(float ber)
-{
-	char text[25U];
-	::sprintf(text, "t3.txt=\"%.1f%%\"", ber);
-	sendCommand(text);
-	sendCommandAction(145U);
-}
-
-void CNextion::writeM17TextInt(const std::string& text)
-{
-	char buffer[105U];
-	::sprintf(buffer, "t4.txt=\"%s\"", text.c_str());
-
-	sendCommand(buffer);
-	sendCommandAction(146U);
-}
-
-void CNextion::clearM17Int()
-{
-	sendCommand("t0.txt=\"Listening\"");
-	sendCommandAction(141U);
-	sendCommand("t1.txt=\"\"");
-	sendCommand("t2.txt=\"\"");
-	sendCommand("t3.txt=\"\"");
-	sendCommand("t4.txt=\"\"");
-}
-
 void CNextion::writeFMInt(const std::string& status)
 {
 	if (m_mode != MODE_FM) {
@@ -738,118 +677,6 @@ void CNextion::clearFMInt()
 	sendCommand("t0.txt=\"Listening\"");
 	sendCommandAction(149U);
 	sendCommand("t2.txt=\"\"");
-}
-
-void CNextion::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
-{
-	if (m_mode != MODE_AX25) {
-		sendCommand("page AX25");
-		sendCommandAction(10U);
-	}
-
-	char text[300U];
-	if (m_brightness > 0) {
-		::sprintf(text, "dim=%u", m_brightness);
-		sendCommand(text);
-	}
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + "> 0x" + pid + " " + data;
-
-	::sprintf(text, "t0.txt=\"%s\"", status.c_str());
-	sendCommand(text);
-	sendCommandAction(150U);
-
-	::sprintf(text, "t2.txt=\"%ddBm\"", rssi);
-	sendCommand(text);
-	sendCommandAction(151U);
-
-	m_clockDisplayTimer.stop();
-
-	m_mode = MODE_AX25;
-}
-
-void CNextion::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
-{
-	if (m_mode != MODE_AX25) {
-		sendCommand("page AX25");
-		sendCommandAction(10U);
-	}
-
-	char text[300U];
-	if (m_brightness > 0) {
-		::sprintf(text, "dim=%u", m_brightness);
-		sendCommand(text);
-	}
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + "> 0x" + pid + " " + data;
-
-	::sprintf(text, "t0.txt=\"%s\"", status.c_str());
-	sendCommand(text);
-	sendCommandAction(150U);
-
-	m_clockDisplayTimer.stop();
-
-	m_mode = MODE_AX25;
-}
-
-void CNextion::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
-{
-	if (m_mode != MODE_AX25) {
-		sendCommand("page AX25");
-		sendCommandAction(10U);
-	}
-
-	char text[300U];
-	if (m_brightness > 0) {
-		::sprintf(text, "dim=%u", m_brightness);
-		sendCommand(text);
-	}
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-
-	::sprintf(text, "t0.txt=\"%s\"", status.c_str());
-	sendCommand(text);
-	sendCommandAction(150U);
-
-	::sprintf(text, "t2.txt=\"%ddBm\"", rssi);
-	sendCommand(text);
-	sendCommandAction(151U);
-
-	m_clockDisplayTimer.stop();
-
-	m_mode = MODE_AX25;
-}
-
-void CNextion::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
-{
-	if (m_mode != MODE_AX25) {
-		sendCommand("page AX25");
-		sendCommandAction(10U);
-	}
-
-	char text[300U];
-	if (m_brightness > 0) {
-		::sprintf(text, "dim=%u", m_brightness);
-		sendCommand(text);
-	}
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-
-	::sprintf(text, "t0.txt=\"%s\"", status.c_str());
-	sendCommand(text);
-	sendCommandAction(150U);
-
-	m_clockDisplayTimer.stop();
-
-	m_mode = MODE_AX25;
-}
-
-void CNextion::clearAX25Int()
-{
-	sendCommand("t0.txt=\"Listening\"");
-	sendCommandAction(153U);
-	sendCommand("t2.txt=\"\"");
-	sendCommand("t3.txt=\"\"");
 }
 
 void CNextion::writePOCSAGInt(uint32_t ric, const std::string& message)
@@ -1017,4 +844,3 @@ void CNextion::sendCommand(const std::string& command)
 
 	m_mutex.unlock();
 }
-

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2021,2023,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,9 +57,7 @@ private:
 	void parseP25(const nlohmann::json& json);
 	void parseNXDN(const nlohmann::json& json);
 	void parsePOCSAG(const nlohmann::json& json);
-	void parseM17(const nlohmann::json& json);
 	void parseFM(const nlohmann::json& json);
-	void parseAX25(const nlohmann::json& json);
 
 	static void onDisplay(const unsigned char* data, unsigned int length);
 	static void onJSON(const unsigned char* data, unsigned int length);

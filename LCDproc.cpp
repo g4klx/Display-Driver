@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2016,2017,2018 by Tony Corbett G0WFV
- *   Copyright (C) 2018,2020,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2018,2020,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -486,39 +486,6 @@ void CLCDproc::clearNXDNInt()
 	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
 }
 
-void CLCDproc::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "screen_set M17 -priority foreground");
-	socketPrintf(m_socketfd, "widget_set M17 Mode 1 1 M17");
-
-	if (m_rows == 2U) {
-		socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"%.9s > %.9s\"", source.c_str(), dest.c_str());
-	} else {
-		socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"%.9s >\"", source.c_str());
-		socketPrintf(m_socketfd, "widget_set M17 Line3 1 3 15 3 h 3 \"%.9ss\"", dest.c_str());
-		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
-	}
-
-	m_dmr = false;
-}
-
-void CLCDproc::writeM17RSSIInt(int rssi)
-{
-	socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
-}
-
-void CLCDproc::clearM17Int()
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "widget_set M17 Line2 1 2 15 2 h 3 \"Listening\"");
-	socketPrintf(m_socketfd, "widget_set M17 Line3 1 3 15 3 h 3 \"\"");
-	socketPrintf(m_socketfd, "widget_set M17 Line4 1 4 15 4 h 3 \"\"");
-	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
-}
-
 void CLCDproc::writeFMInt(const std::string& status)
 {
 	m_clockDisplayTimer.stop();           // Stop the clock display
@@ -548,94 +515,6 @@ void CLCDproc::clearFMInt()
 	socketPrintf(m_socketfd, "widget_set FM Line2 1 2 15 2 h 3 \"Listening\"");
 	socketPrintf(m_socketfd, "widget_set FM Line3 1 3 15 3 h 3 \"\"");
 	socketPrintf(m_socketfd, "widget_set FM Line4 1 4 15 4 h 3 \"\"");
-	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
-}
-
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "screen_set AX25 -priority foreground");
-	socketPrintf(m_socketfd, "widget_set AX25 Mode 1 1 AX25");
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + "> 0x" + pid + " " + data;
-
-	if (m_rows == 2U) {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
-	} else {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
-		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
-	}
-
-	m_dmr = false;
-}
-
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "screen_set AX25 -priority foreground");
-	socketPrintf(m_socketfd, "widget_set AX25 Mode 1 1 AX25");
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + "> 0x" + pid + " " + data;
-
-	if (m_rows == 2U) {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
-	} else {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
-	}
-
-	m_dmr = false;
-}
-
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "screen_set AX25 -priority foreground");
-	socketPrintf(m_socketfd, "widget_set AX25 Mode 1 1 AX25");
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-
-	if (m_rows == 2U) {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
-	} else {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 %u 4 h 3 \"%ddBm\"", m_cols - 1, rssi);
-		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
-	}
-
-	m_dmr = false;
-}
-
-void CLCDproc::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "screen_set AX25 -priority foreground");
-	socketPrintf(m_socketfd, "widget_set AX25 Mode 1 1 AX25");
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-
-	if (m_rows == 2U) {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s\"", status.c_str());
-	} else {
-		socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"%s >\"", status.c_str());
-		socketPrintf(m_socketfd, "output 255"); // Set LED5 color red
-	}
-
-	m_dmr = false;
-}
-
-void CLCDproc::clearAX25Int()
-{
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	socketPrintf(m_socketfd, "widget_set AX25 Line2 1 2 15 2 h 3 \"Listening\"");
-	socketPrintf(m_socketfd, "widget_set AX25 Line3 1 3 15 3 h 3 \"\"");
-	socketPrintf(m_socketfd, "widget_set AX25 Line4 1 4 15 4 h 3 \"\"");
 	socketPrintf(m_socketfd, "output 16"); // Set LED5 color green
 }
 

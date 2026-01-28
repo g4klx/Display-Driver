@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2016,2017,2018,2020,2023,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -74,20 +74,11 @@ protected:
 	virtual void writeNXDNInt(const std::string& source, bool group, unsigned int dest, const std::string& type);
 	virtual void clearNXDNInt();
 
-	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type);
-	virtual void clearM17Int();
-
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
 
 	virtual void writeFMInt(const std::string& state);
 	virtual void clearFMInt();
-
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi);
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi);
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
-	virtual void clearAX25Int();
 
 	virtual void writeCWInt();
 	virtual void clearCWInt();
@@ -116,4 +107,3 @@ private:
 #endif
 
 #endif
-

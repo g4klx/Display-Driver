@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2016,2017,2018,2020,2021,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2016,2017,2018,2020,2021,2023,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -67,23 +67,12 @@ public:
 	void writeNXDNBER(float ber);
 	void clearNXDN();
 
-	void writeM17(const std::string& source, const std::string& dest, const std::string& type);
-	void writeM17RSSI(int rssi);
-	void writeM17BER(float ber);
-	void writeM17Text(const std::string& text);
-	void clearM17();
-
 	void writePOCSAG(uint32_t ric, const std::string& message);
 	void clearPOCSAG();
 
 	void writeFM(const std::string& state);
 	void writeFMRSSI(int rssi);
 	void clearFM();
-
-	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi);
-	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data);
-	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi);
-	void writeAX25(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type);
 
 	void writeCW();
 
@@ -124,24 +113,12 @@ protected:
 	virtual void writeNXDNBERInt(float ber);
 	virtual void clearNXDNInt() = 0;
 
-	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type) = 0;
-	virtual void writeM17RSSIInt(int rssi);
-	virtual void writeM17BERInt(float ber);
-	virtual void writeM17TextInt(const std::string& text);
-	virtual void clearM17Int() = 0;
-
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message) = 0;
 	virtual void clearPOCSAGInt() = 0;
 
 	virtual void writeFMInt(const std::string& state) = 0;
 	virtual void writeFMRSSIInt(int rssi);
 	virtual void clearFMInt() = 0;
-
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi) = 0;
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data) = 0;
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi) = 0;
-	virtual void writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type) = 0;
-	virtual void clearAX25Int() = 0;
 
 	virtual void writeCWInt() = 0;
 	virtual void clearCWInt() = 0;

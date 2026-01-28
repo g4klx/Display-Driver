@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2019 by SASANO Takayoshi JG1UAA
- *   Copyright (C) 2015,2016,2018,2019,2020,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2018,2019,2020,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -307,25 +307,6 @@ void CTFTSurenoo::clearNXDNInt()
 	clearDStarInt();
 }
 
-void CTFTSurenoo::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
-{
-	if (m_mode != MODE_M17)
-		setModeLine(STR_M17);
-
-	::snprintf(m_temp, sizeof(m_temp), "%s %s", type.c_str(), source.c_str());
-	setStatusLine(statusLineNo(0), m_temp);
-
-	::snprintf(m_temp, sizeof(m_temp), "%s", dest.c_str());
-	setStatusLine(statusLineNo(1), m_temp);
-
-	m_mode = MODE_M17;
-}
-
-void CTFTSurenoo::clearM17Int()
-{
-	clearDStarInt();
-}
-
 void CTFTSurenoo::writePOCSAGInt(uint32_t ric, const std::string& message)
 {
 	setStatusLine(statusLineNo(1), "POCSAG TX");
@@ -361,47 +342,6 @@ void CTFTSurenoo::writeFMInt(const std::string& state)
 }
 
 void CTFTSurenoo::clearFMInt()
-{
-	clearDStarInt();
-}
-
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data, int rssi)
-{
-	writeAX25Int(source, source_cs, destination_cs, type, pid, data);
-}
-
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, const std::string& pid, const std::string& data)
-{
-	if (m_mode != MODE_AX25)
-		setModeLine(STR_AX25);
-
-	std::string status1 = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-	std::string status2 = "0x" + pid + " " + data;
-
-	setStatusLine(statusLineNo(0), status1.c_str());
-	setStatusLine(statusLineNo(1), status2.c_str());
-
-	m_mode = MODE_AX25;
-}
-
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type, int rssi)
-{
-	writeAX25Int(source, source_cs, destination_cs, type);
-}
-
-void CTFTSurenoo::writeAX25Int(const std::string& source, const std::string& source_cs, const std::string& destination_cs, const std::string& type)
-{
-	if (m_mode != MODE_AX25)
-		setModeLine(STR_AX25);
-
-	std::string status = source + ": " + source_cs + ">" + destination_cs + " <" + type + ">";
-
-	setStatusLine(statusLineNo(0), status.c_str());
-
-	m_mode = MODE_AX25;
-}
-
-void CTFTSurenoo::clearAX25Int()
 {
 	clearDStarInt();
 }

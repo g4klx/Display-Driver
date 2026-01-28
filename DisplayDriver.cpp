@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -509,21 +509,9 @@ void CDisplayDriver::readJSON(const std::string& text)
 			return;
 		}
 
-		exists = j["M17"].is_object();
-		if (exists) {
-			parseM17(j["M17"]);
-			return;
-		}
-
 		exists = j["FM"].is_object();
 		if (exists) {
 			parseFM(j["FM"]);
-			return;
-		}
-
-		exists = j["AX.25"].is_object();
-		if (exists) {
-			parseAX25(j["AX.25"]);
 			return;
 		}
 	}
@@ -566,8 +554,6 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 		m_display->writeP25RSSI(value);
 	} else if (mode == "NXDN") {
 		m_display->writeNXDNRSSI(value);
-	} else if (mode == "M17") {
-		m_display->writeM17RSSI(value);
 	} else if (mode == "FM") {
 		m_display->writeFMRSSI(value);
 	}
@@ -591,8 +577,6 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 		m_display->writeP25BER(value);
 	} else if (mode == "NXDN") {
 		m_display->writeNXDNBER(value);
-	} else if (mode == "M17") {
-		m_display->writeM17BER(value);
 	}
 }
 
@@ -608,9 +592,6 @@ void CDisplayDriver::parseText(const nlohmann::json& json)
 		int slot          = json["slot"];
 		std::string value = json["value"];
 		m_display->writeDMRTA(slot, value);
-	} else if (mode == "M17") {
-		std::string value = json["value"];
-		m_display->writeM17Text(value);
 	}
 }
 
@@ -719,22 +700,6 @@ void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 	}
 }
 
-void CDisplayDriver::parseM17(const nlohmann::json& json)
-{
-	assert(m_display != nullptr);
-
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		std::string source_cs      = json["source_cs"];
-		std::string destination_cs = json["destination_cs"];
-		std::string source         = json["source"] == "rf" ? "R" : "N";
-
-		m_display->writeM17(source_cs, destination_cs, source);
-	} else if (action == "end" || action == "lost") {
-		m_display->clearM17();
-	}
-}
-
 void CDisplayDriver::parseFM(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
@@ -763,35 +728,6 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 		m_display->writeFM(state);
 }
 
-void CDisplayDriver::parseAX25(const nlohmann::json& json)
-{
-	assert(m_display != nullptr);
-
-	std::string source_cs      = json["source_cs"];
-	std::string destination_cs = json["destination_cs"];
-	std::string type           = json["type"];
-	std::string source         = json["source"] == "rf" ? "R" : "N";
-
-	int rssi = 0;
-	if (json["rssi"].is_number_integer())
-		rssi = json["rssi"];
-
-	if (json["pid"].is_string()) {
-		std::string pid  = json["pid"];
-		std::string data = json["data"];
-
-		if (rssi == 0.0F)
-			m_display->writeAX25(source, source_cs, destination_cs, type, pid, data);
-		else
-			m_display->writeAX25(source, source_cs, destination_cs, type, pid, data, rssi);
-	} else {
-		if (rssi == 0.0F)
-			m_display->writeAX25(source, source_cs, destination_cs, type);
-		else
-			m_display->writeAX25(source, source_cs, destination_cs, type, rssi);
-	}
-}
-
 void CDisplayDriver::onDisplay(const unsigned char* data, unsigned int length)
 {
 	assert(data != nullptr);
@@ -809,4 +745,3 @@ void CDisplayDriver::onJSON(const unsigned char* data, unsigned int length)
 
 	driver->readJSON(std::string((char*)data, length));
 }
-
