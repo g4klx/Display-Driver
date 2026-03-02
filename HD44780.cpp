@@ -43,7 +43,6 @@ const unsigned int DMR_RSSI_COUNT   = 4U;    // 4 * 360ms = 1440ms
 const unsigned int YSF_RSSI_COUNT   = 13U;   // 13 * 100ms = 1300ms 
 const unsigned int P25_RSSI_COUNT   = 7U;    // 7 * 180ms = 1260ms
 const unsigned int NXDN_RSSI_COUNT  = 28U;   // 28 * 40ms = 1120ms
-const unsigned int M17_RSSI_COUNT   = 28U;   // 28 * 40ms = 1120ms
 
 CHD44780::CHD44780(const std::string& callsign, unsigned int id, bool duplex, unsigned int rows, unsigned int cols, const std::vector<unsigned int>& pins, unsigned int i2cAddress, bool pwm, unsigned int pwmPin, unsigned int pwmBright, unsigned int pwmDim, bool displayClock, bool utc) :
 CDisplay(),
@@ -943,101 +942,6 @@ void CHD44780::clearNXDNInt()
 	if (m_rows == 2U && m_cols == 16U) {
 		::lcdPosition(m_fd, 0, 1);
 		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
-	} else if (m_rows == 4U && m_cols == 16U) {
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
-
-		::lcdPosition(m_fd, 0, 2);
-		::lcdPrintf(m_fd, "%.*s", m_cols, "                    ");
-
-		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "%.*s", m_cols, "                    ");
-	} else if (m_rows == 4U && m_cols == 20U) {
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
-
-		::lcdPosition(m_fd, 0, 2);
-		::lcdPrintf(m_fd, "%.*s", m_cols, "                    ");
-
-		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "%.*s", m_cols, "                    ");
-	} else if (m_rows == 2 && m_cols == 40U) {
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
-	}
-}
-
-void CHD44780::writeM17Int(const std::string& source, const std::string& dest, const std::string& type)
-{
-#ifdef ADAFRUIT_DISPLAY
-		adafruitLCDColour(ADAFRUIT_COLOUR::RED);
-#endif
-
-	m_clockDisplayTimer.stop();           // Stop the clock display
-	::lcdClear(m_fd);
-
-	if (m_pwm) {
-		if (m_pwmPin != 1U)
-			::softPwmWrite(m_pwmPin, m_pwmBright);
-		else
-			::pwmWrite(m_pwmPin, (m_pwmBright / 100) * 1024);
-	}
-
-	::lcdPosition(m_fd, 0, 0);
-	::lcdPuts(m_fd, "M17");
-
-	::sprintf(m_buffer1, "%.9s", source.c_str());
-	::sprintf(m_buffer2, "%.9s", dest.c_str());
-
-	if (m_rows == 2U && m_cols == 16U) {
-		::lcdPosition(m_fd, 5, 0);
-		::lcdPrintf(m_fd, "%.*s", m_cols - 5, m_buffer1);
-		::lcdPosition(m_fd, 5, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols - 5, m_buffer2);
-	} else if (m_rows == 4U && m_cols == 16U) {
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
-		::lcdPosition(m_fd, 0, 2);
-		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer2);
-	} else if (m_rows == 4U && m_cols == 20U) {
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
-		::lcdPosition(m_fd, 0, 2);
-		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
-	} else if (m_rows == 2 && m_cols == 40U) {
-		::sprintf(m_buffer1, "%.9s > %.9s", source, dest);
-		::lcdPosition(m_fd, 0, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
-	}
-
-	m_dmr = false;
-	m_rssiCount1 = 0U; 
-} 
- 
-void CHD44780::writeM17RSSIInt(int rssi)
-{ 
-	if (m_rssiCount1 == 0U && m_rows > 2) {
-		::lcdPosition(m_fd, 0, 3);
-		::lcdPrintf(m_fd, "%3ddBm", rssi);
-	}
-
-	m_rssiCount1++;
-	if (m_rssiCount1 >= M17_RSSI_COUNT)
-		m_rssiCount1 = 0U;
-}
-
-void CHD44780::clearM17Int()
-{
-#ifdef ADAFRUIT_DISPLAY
-	adafruitLCDColour(ADAFRUIT_COLOUR::PURPLE);
-#endif
-	m_clockDisplayTimer.stop();           // Stop the clock display
-
-	if (m_rows == 2U && m_cols == 16U) {
-		::lcdPosition(m_fd, 5, 0);
-		::lcdPrintf(m_fd, "%.*s", m_cols - 5, LISTENING);
-		::lcdPosition(m_fd, 5, 1);
-		::lcdPrintf(m_fd, "%.*s", m_cols - 5, "                    ");
 	} else if (m_rows == 4U && m_cols == 16U) {
 		::lcdPosition(m_fd, 0, 1);
 		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);

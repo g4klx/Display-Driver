@@ -124,10 +124,6 @@ protected:
 	virtual void writeNXDNRSSIInt(int rssi); 
 	virtual void clearNXDNInt();
 
-	virtual void writeM17Int(const std::string& source, const std::string& dest, const std::string& type);
-	virtual void writeM17RSSIInt(int rssi);
-	virtual void clearM17Int();
-
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
 

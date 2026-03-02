@@ -91,11 +91,9 @@ enum class LcdColour : unsigned char {
 #define STR_DSTAR		"D-STAR"
 #define STR_MMDVM		"MMDVM"
 #define STR_NXDN		"NXDN"
-#define STR_M17			"M17"
 #define STR_P25			"P25"
 #define STR_YSF			"SystemFusion"
 #define	STR_FM			"FM"
-#define	STR_AX25		"AX.25"
 
 CTFTSurenoo::CTFTSurenoo(const std::string& callsign, unsigned int id, bool duplex, ISerialPort* serial, unsigned int brightness, unsigned int screenLayout) :
 CDisplay(),
