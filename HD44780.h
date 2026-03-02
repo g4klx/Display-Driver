@@ -124,6 +124,9 @@ protected:
 	virtual void writeNXDNRSSIInt(int rssi); 
 	virtual void clearNXDNInt();
 
+	virtual void writeFMInt(const std::string& state);
+	virtual void clearFMInt();
+
 	virtual void writePOCSAGInt(uint32_t ric, const std::string& message);
 	virtual void clearPOCSAGInt();
 

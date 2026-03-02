@@ -310,7 +310,7 @@ void CHD44780::setIdleInt()
 	::lcdPosition(m_fd, 0, 0);
 	::lcdPrintf(m_fd, "%-6s", m_callsign.c_str());
 	::lcdPosition(m_fd, m_cols - 7, 0);
-	::lcdPrintf(m_fd, "%7u", m_dmrid);
+	::lcdPrintf(m_fd, "%7u", m_id);
 
 	// Print MMDVM and Idle on bottom row for all screen sizes
 	::lcdPosition(m_fd, 0, m_rows - 1);
@@ -410,7 +410,7 @@ void CHD44780::writeDStarInt(const std::string& my1, const std::string& my2, con
 
 	if (m_rows > 2U) {
 		::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-		::sprintf(m_buffer1, "%s%s", "D-Star", DEADSPACE);
+		::sprintf(m_buffer1, "%s%s", "D-Star", DEADSPACE.c_str());
 		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 	}
 
@@ -472,7 +472,7 @@ void CHD44780::clearDStarInt()
 	::lcdClear(m_fd);
 
 	::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
-	::sprintf(m_buffer2, "%s%s", "D-Star", DEADSPACE);
+	::sprintf(m_buffer2, "%s%s", "D-Star", DEADSPACE.c_str());
 	::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer2);
 	::lcdPosition(m_fd, 0, (m_rows / 2));
 	::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
@@ -497,7 +497,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 		if (m_duplex) {
 			if (m_rows > 2U) {
 				::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-				::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE);
+				::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE.c_str());
 				::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 			}
 
@@ -515,12 +515,12 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 
 			if (m_rows > 2U) {
 				::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-				::sprintf(m_buffer1, "%s", DEADSPACE);
+				::sprintf(m_buffer1, "%s", DEADSPACE.c_str());
 				::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 			}
 
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
-			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE);
+			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 			::lcdPosition(m_fd, 0, (m_rows / 2));
 			::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
@@ -533,7 +533,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 	if (m_duplex) {
 		if (m_rows > 2U) {
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE);
+			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 		}
 
@@ -541,9 +541,9 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
 			::lcdPuts(m_fd, "1 ");
 			if (m_cols > 16U)
-				::sprintf(m_buffer1, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE);
+				::sprintf(m_buffer1, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE.c_str());
 			else
-				::sprintf(m_buffer1, "%s>%u%s", src.c_str(), dst, DEADSPACE);
+				::sprintf(m_buffer1, "%s>%u%s", src.c_str(), dst, DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols - 2U, m_buffer1);
 
 			::lcdPosition(m_fd, m_cols - 3U, (m_rows / 2) - 1);
@@ -563,9 +563,9 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 			::lcdPuts(m_fd, "2 ");
 
 			if (m_cols > 16)
-				::sprintf(m_buffer2, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE);
+				::sprintf(m_buffer2, "%s > %s%u%s", src.c_str(), group ? "TG" : "", dst, DEADSPACE.c_str());
 			else
-				::sprintf(m_buffer2, "%s>%u%s", src.c_str(), dst, DEADSPACE);
+				::sprintf(m_buffer2, "%s>%u%s", src.c_str(), dst, DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols - 2U, m_buffer2);
 
 			::lcdPosition(m_fd, m_cols - 3U, (m_rows / 2));
@@ -584,13 +584,13 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 	} else {
 		if (m_rows > 2U) {
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE);
+			::sprintf(m_buffer1, "%s%s", "DMR", DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 		}
 
 		::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
 		::lcdPutchar(m_fd, 0);
-		::sprintf(m_buffer2, " %s%s", src.c_str(), DEADSPACE);
+		::sprintf(m_buffer2, " %s%s", src.c_str(), DEADSPACE.c_str());
 		::lcdPrintf(m_fd, "%.*s", m_cols - 4U, m_buffer2);
 		::lcdPosition(m_fd, m_cols - 1U, (m_rows / 2) - 1);
 
@@ -601,7 +601,7 @@ void CHD44780::writeDMRInt(unsigned int slotNo, const std::string& src, bool gro
 
 		::lcdPosition(m_fd, 0, (m_rows / 2));
 		::lcdPutchar(m_fd, 1);
-		::sprintf(m_buffer2, " %s%u%s", group ? "TG" : "", dst), DEADSPACE);
+		::sprintf(m_buffer2, " %s%u%s", group ? "TG" : "", dst, DEADSPACE.c_str());
 		::lcdPrintf(m_fd, "%.*s", m_cols - 4U, m_buffer2);
 		::lcdPosition(m_fd, m_cols - 1U, (m_rows / 2));
 
@@ -655,7 +655,7 @@ void CHD44780::clearDMRInt(unsigned int slotNo)
 
 			if (m_rows > 2) { // clear slot 1 RSSI
 				::lcdPosition(m_fd, 0, 3);
-				::lcdPrintf(m_fd, "%.*s", m_cols / 2, DEADSPACE);
+				::lcdPrintf(m_fd, "%.*s", m_cols / 2, DEADSPACE.c_str());
 			}
 		} else {
 			::lcdPosition(m_fd, 0, (m_rows / 2));
@@ -663,18 +663,18 @@ void CHD44780::clearDMRInt(unsigned int slotNo)
 
 			if (m_rows > 2) { // cleat slot 2 RSSI
 				::lcdPosition(m_fd, m_cols / 2, 3);
-				::lcdPrintf(m_fd, "%.*s", m_cols / 2, DEADSPACE);
+				::lcdPrintf(m_fd, "%.*s", m_cols / 2, DEADSPACE.c_str());
 			}
 		}
 	} else {
 		if (m_rows > 2U) {
 			::lcdPosition(m_fd, 0, (m_rows / 2) - 2);
-			::sprintf(m_buffer1, "%s", DEADSPACE);
+			::sprintf(m_buffer1, "%s", DEADSPACE.c_str());
 			::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer1);
 		}
 
 		::lcdPosition(m_fd, 0, (m_rows / 2) - 1);
-		::sprintf(m_buffer2, "%s%s", "DMR", DEADSPACE);
+		::sprintf(m_buffer2, "%s%s", "DMR", DEADSPACE.c_str());
 		::lcdPrintf(m_fd, "%.*s", m_cols, m_buffer2);
 		::lcdPosition(m_fd, 0, (m_rows / 2));
 		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
@@ -960,6 +960,49 @@ void CHD44780::clearNXDNInt()
 
 		::lcdPosition(m_fd, 0, 3);
 		::lcdPrintf(m_fd, "%.*s", m_cols, "                    ");
+	} else if (m_rows == 2 && m_cols == 40U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
+	}
+}
+
+void CHD44780::writeFMInt(const std::string& state)
+{
+	m_clockDisplayTimer.stop();           // Stop the clock display
+
+	::lcdPosition(m_fd, 0, 0);
+	::lcdPuts(m_fd, "FM");
+
+	if (m_rows == 2U && m_cols == 16U) {
+		::lcdPosition(m_fd, 3, 0);
+		::lcdPrintf(m_fd, "%.*s", m_cols - 3, state.c_str());
+	} else if (m_rows == 4U && m_cols == 16U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, state.c_str());
+	} else if (m_rows == 4U && m_cols == 20U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, state.c_str());
+	} else if (m_rows == 2 && m_cols == 40U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, state.c_str());
+	}
+
+	m_dmr = false;
+}
+
+void CHD44780::clearFMInt()
+{
+	m_clockDisplayTimer.stop();           // Stop the clock display
+
+	if (m_rows == 2U && m_cols == 16U) {
+		::lcdPosition(m_fd, 3, 0);
+		::lcdPrintf(m_fd, "%.*s", m_cols - 3, LISTENING);
+	} else if (m_rows == 4U && m_cols == 16U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
+	} else if (m_rows == 4U && m_cols == 20U) {
+		::lcdPosition(m_fd, 0, 1);
+		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
 	} else if (m_rows == 2 && m_cols == 40U) {
 		::lcdPosition(m_fd, 0, 1);
 		::lcdPrintf(m_fd, "%.*s", m_cols, LISTENING);
