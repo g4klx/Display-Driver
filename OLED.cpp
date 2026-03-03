@@ -16,7 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#if defined(OLED)
+#if defined(USE_OLED)
 
 #include "Log.h"
 

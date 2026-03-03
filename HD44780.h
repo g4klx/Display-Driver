@@ -19,7 +19,7 @@
 #if !defined(HD44780_H)
 #define	HD44780_H
 
-#if defined(HD44780)
+#if defined(USE_HD44780)
 
 #include "Display.h"
 #include "Timer.h"
@@ -42,7 +42,7 @@ enum class ADAFRUIT_COLOUR {
 };
 
 // Defines for the Adafruit Pi LCD interface board
-#ifdef ADAFRUIT_DISPLAY
+#ifdef USE_ADAFRUIT_DISPLAY
 #define AF_BASE   100
 
 /*   Not yet used defines (for possible future use)
@@ -73,7 +73,7 @@ enum class ADAFRUIT_COLOUR {
 #endif
 
 // Define for HD44780 connected via a PCF8574 GPIO extender
-#ifdef PCF8574_DISPLAY
+#ifdef USE_PCF8574_DISPLAY
 #define AF_BASE   100
 
 #define AF_RS     (AF_BASE +  0)
@@ -165,12 +165,12 @@ private:
 	CTimer       m_dstarScrollTimer;
 */
 
-#ifdef ADAFRUIT_DISPLAY
+#ifdef USE_ADAFRUIT_DISPLAY
 	void adafruitLCDSetup();
 	void adafruitLCDColour(ADAFRUIT_COLOUR colour);
 #endif
 
-#ifdef PCF8574_DISPLAY
+#ifdef USE_PCF8574_DISPLAY
 	void pcf8574LCDSetup();
 #endif
 };

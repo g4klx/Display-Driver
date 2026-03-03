@@ -31,11 +31,11 @@
 #include "Log.h"
 #include "GitVersion.h"
 
-#if defined(HD44780)
+#if defined(USE_HD44780)
 #include "HD44780.h"
 #endif
 
-#if defined(OLED)
+#if defined(USE_OLED)
 #include "OLED.h"
 #endif
 
@@ -181,7 +181,7 @@ int CDisplayDriver::run()
 			return -1;
 		}
 
-#if !defined(HD44780) && !defined(OLED) && !defined(_OPENWRT)
+#if !defined(USE_HD44780) && !defined(USE_OLED) && !defined(_OPENWRT)
 		// If we are currently root...
 		if (getuid() == 0) {
 			struct passwd* user = ::getpwnam("mmdvm");
@@ -363,7 +363,7 @@ bool CDisplayDriver::createDisplay()
 			LogInfo("    Display UTC: %s", utc ? "yes" : "no");
 
 		m_display = new CLCDproc(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), address, port, localPort, displayClock, utc, dimOnIdle);
-#if defined(HD44780)
+#if defined(USE_HD44780)
 	} else if (type == "HD44780") {
 		unsigned int rows              = m_conf.getHD44780Rows();
 		unsigned int columns           = m_conf.getHD44780Columns();
@@ -380,7 +380,7 @@ bool CDisplayDriver::createDisplay()
 			LogInfo("    Rows: %u", rows);
 			LogInfo("    Columns: %u", columns);
 
-#if defined(ADAFRUIT_DISPLAY) || defined(PCF8574_DISPLAY)
+#if defined(USE_ADAFRUIT_DISPLAY) || defined(USE_PCF8574_DISPLAY)
 			LogInfo("    Device Address: %#x", i2cAddress);
 #else
 			LogInfo("    Pins: %u,%u,%u,%u,%u,%u", pins.at(0U), pins.at(1U), pins.at(2U), pins.at(3U), pins.at(4U), pins.at(5U));
@@ -400,7 +400,7 @@ bool CDisplayDriver::createDisplay()
 			m_display = new CHD44780(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), rows, columns, pins, i2cAddress, pwm, pwmPin, pwmBright, pwmDim, displayClock, utc);
 		}
 #endif
-#if defined(OLED)
+#if defined(USE_OLED)
 	} else if (type == "OLED") {
 		unsigned char type       = m_conf.getOLEDType();
 		unsigned char brightness = m_conf.getOLEDBrightness();

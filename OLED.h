@@ -19,7 +19,7 @@
 #if !defined(OLED_H)
 #define	OLED_H
 
-#if defined(OLED)
+#if defined(USE_OLED)
 
 #define OLED_STATUSBAR 0
 #define OLED_LINE1 8 //16

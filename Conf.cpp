@@ -32,9 +32,9 @@ enum class SECTION {
 	LOG,
 	MQTT,
 	TFTSERIAL,
-	HD44780_SECTION,
+	HD44780,
 	NEXTION,
-	OLED_SECTION,
+	OLED,
 	LCDPROC
 };
 
@@ -119,11 +119,11 @@ bool CConf::read()
 			else if (::strncmp(buffer, "[TFT Serial]", 12U) == 0)
 				section = SECTION::TFTSERIAL;
 			else if (::strncmp(buffer, "[HD44780]", 9U) == 0)
-				section = SECTION::HD44780_SECTION;
+				section = SECTION::HD44780;
 			else if (::strncmp(buffer, "[Nextion]", 9U) == 0)
 				section = SECTION::NEXTION;
 			else if (::strncmp(buffer, "[OLED]", 6U) == 0)
-				section = SECTION::OLED_SECTION;
+				section = SECTION::OLED;
 			else if (::strncmp(buffer, "[LCDproc]", 9U) == 0)
 				section = SECTION::LCDPROC;
 			else
@@ -200,7 +200,7 @@ bool CConf::read()
 				m_tftSerialBrightness = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "ScreenLayout") == 0)
 				m_tftSerialScreenLayout = (unsigned int)::atoi(value);
-		} else if (section == SECTION::HD44780_SECTION) {
+		} else if (section == SECTION::HD44780) {
 			if (::strcmp(key, "Rows") == 0)
 				m_hd44780Rows = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "Columns") == 0)
@@ -242,7 +242,7 @@ bool CConf::read()
 				m_nextionScreenLayout = (unsigned int)::strtoul(value, nullptr, 0);
 			else if (::strcmp(key, "DisplayTempInFahrenheit") == 0)
 				m_nextionTempInFahrenheit = ::atoi(value) == 1;
-		} else if (section == SECTION::OLED_SECTION) {
+		} else if (section == SECTION::OLED) {
 			if (::strcmp(key, "Type") == 0)
 				m_oledType = (unsigned char)::atoi(value);
 			else if (::strcmp(key, "Brightness") == 0)
