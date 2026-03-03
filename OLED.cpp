@@ -763,8 +763,6 @@ void COLED::OLED_statusbar()
 		m_display.drawBitmap(0, 0, logo_P25_bmp, 128, 16, WHITE);
 	else if (m_mode == MODE_NXDN)
 		m_display.drawBitmap(0, 0, logo_NXDN_bmp, 128, 16, WHITE);
-	else if (m_mode == MODE_M17)
-		m_display.drawBitmap(0, 0, logo_M17_bmp, 128, 16, WHITE);
 	else if (m_mode == MODE_POCSAG)
 		m_display.drawBitmap(0, 0, logo_POCSAG_bmp, 128, 16, WHITE);
 	else if (m_displayLogoScreensaver)

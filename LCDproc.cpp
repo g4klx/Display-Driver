@@ -184,9 +184,7 @@ void CLCDproc::setIdleInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
-		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
-		socketPrintf(m_socketfd, "screen_set AX25 -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Idle", m_cols - 3, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
 	}
@@ -204,9 +202,7 @@ void CLCDproc::setErrorInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
-		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
-		socketPrintf(m_socketfd, "screen_set AX25 -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Error", m_cols - 4, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
 	}
@@ -224,9 +220,7 @@ void CLCDproc::setLockoutInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
-		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
-		socketPrintf(m_socketfd, "screen_set AX25 -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Lockout", m_cols - 6, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
 	}
@@ -246,9 +240,7 @@ void CLCDproc::setQuitInt()
 		socketPrintf(m_socketfd, "screen_set YSF -priority hidden");
 		socketPrintf(m_socketfd, "screen_set P25 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set NXDN -priority hidden");
-		socketPrintf(m_socketfd, "screen_set M17 -priority hidden");
 		socketPrintf(m_socketfd, "screen_set FM -priority hidden");
-		socketPrintf(m_socketfd, "screen_set AX25 -priority hidden");
 		socketPrintf(m_socketfd, "widget_set Status Status %u %u Stopped", m_cols - 6, m_rows);
 		socketPrintf(m_socketfd, "output 0");   // Clear all LEDs
 	}
@@ -816,22 +808,6 @@ void CLCDproc::defineScreens()
 	socketPrintf(m_socketfd, "widget_set NXDN Line4 4 2 15 2 h 3 \" \"");
 */
 
-	// The M17 Screen
-
-	socketPrintf(m_socketfd, "screen_add M17");
-	socketPrintf(m_socketfd, "screen_set M17 -name M17 -heartbeat on -priority hidden -backlight on");
-
-	socketPrintf(m_socketfd, "widget_add M17 Mode string");
-	socketPrintf(m_socketfd, "widget_add M17 Line2 scroller");
-	socketPrintf(m_socketfd, "widget_add M17 Line3 scroller");
-	socketPrintf(m_socketfd, "widget_add M17 Line4 scroller");
-
-/* Do we need to pre-populate the values??
-	socketPrintf(m_socketfd, "widget_set M17 Line3 2 1 15 1 h 3 \"Listening\"");
-	socketPrintf(m_socketfd, "widget_set M17 Line3 3 1 15 1 h 3 \" \"");
-	socketPrintf(m_socketfd, "widget_set M17 Line4 4 2 15 2 h 3 \" \"");
-*/
-
 	// The FM Screen
 
 	socketPrintf(m_socketfd, "screen_add FM");
@@ -846,22 +822,6 @@ void CLCDproc::defineScreens()
 	socketPrintf(m_socketfd, "widget_set FM Line3 2 1 15 1 h 3 \"Listening\"");
 	socketPrintf(m_socketfd, "widget_set FM Line3 3 1 15 1 h 3 \" \"");
 	socketPrintf(m_socketfd, "widget_set FM Line4 4 2 15 2 h 3 \" \"");
-*/
-
-	// The AX.25 Screen
-
-	socketPrintf(m_socketfd, "screen_add AX25");
-	socketPrintf(m_socketfd, "screen_set AX25 -name AX25 -heartbeat on -priority hidden -backlight on");
-
-	socketPrintf(m_socketfd, "widget_add AX25 Mode string");
-	socketPrintf(m_socketfd, "widget_add AX25 Line2 scroller");
-	socketPrintf(m_socketfd, "widget_add AX25 Line3 scroller");
-	socketPrintf(m_socketfd, "widget_add AX25 Line4 scroller");
-
-/* Do we need to pre-populate the values??
-	socketPrintf(m_socketfd, "widget_set AX25 Line3 2 1 15 1 h 3 \"Listening\"");
-	socketPrintf(m_socketfd, "widget_set AX25 Line3 3 1 15 1 h 3 \" \"");
-	socketPrintf(m_socketfd, "widget_set AX25 Line4 4 2 15 2 h 3 \" \"");
 */
 
 	m_screensDefined = true;
