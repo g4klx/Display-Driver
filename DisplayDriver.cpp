@@ -446,71 +446,84 @@ void CDisplayDriver::readDisplay(const unsigned char* data, unsigned int length)
 
 void CDisplayDriver::readJSON(const std::string& text)
 {
+	LogDebug("Incoming JSON - \"%s\"", text.c_str());
+
 	try {
 		nlohmann::json j = nlohmann::json::parse(text);
 
 		bool exists = j["MMDVM"].is_object();
 		if (exists) {
+			LogDebug("Identified as an MMDVM message");
 			parseMMDVM(j["MMDVM"]);
 			return;
 		}
 
 		exists = j["RSSI"].is_object();
 		if (exists) {
+			LogDebug("Identified as an RSSI message");
 			parseRSSI(j["RSSI"]);
 			return;
 		}
 
 		exists = j["BER"].is_object();
 		if (exists) {
+			LogDebug("Identified as a BER message");
 			parseBER(j["BER"]);
 			return;
 		}
 
 		exists = j["Text"].is_object();
 		if (exists) {
+			LogDebug("Identified as a Text message");
 			parseText(j["Text"]);
 			return;
 		}
 
 		exists = j["D-Star"].is_object();
 		if (exists) {
+			LogDebug("Identified as a D-Star message");
 			parseDStar(j["D-Star"]);
 			return;
 		}
 
 		exists = j["DMR"].is_object();
 		if (exists) {
+			LogDebug("Identified as a DMR message");
 			parseDMR(j["DMR"]);
 			return;
 		}
 
 		exists = j["YSF"].is_object();
 		if (exists) {
+			LogDebug("Identified as a YSF message");
 			parseYSF(j["YSF"]);
 			return;
 		}
 
 		exists = j["P25"].is_object();
 		if (exists) {
+			LogDebug("Identified as a P25 message");
 			parseP25(j["P25"]);
 			return;
 		}
 
 		exists = j["NXDN"].is_object();
 		if (exists) {
+			LogDebug("Identified as an NXDN message");
 			parseNXDN(j["NXDN"]);
 			return;
 		}
 
 		exists = j["POCSAG"].is_object();
 		if (exists) {
+			LogDebug("Identified as a POCSAG message");
 			parsePOCSAG(j["POCSAG"]);
 			return;
 		}
 
 		exists = j["FM"].is_object();
 		if (exists) {
+			LogDebug("Identified as an FM message");
 			parseFM(j["FM"]);
 			return;
 		}
@@ -524,38 +537,48 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string mode = json["mode"];
+	try {
+		std::string mode = json["mode"];
 
-	if (mode == "idle")
-		m_display->setIdle();
-	else if (mode == "CW")
-		m_display->writeCW();
-	else if (mode == "lockout") 
-		m_display->setLockout();
-	else if (mode == "error")
-		m_display->setError();
+		if (mode == "idle")
+			m_display->setIdle();
+		else if (mode == "CW")
+			m_display->writeCW();
+		else if (mode == "lockout") 
+			m_display->setLockout();
+		else if (mode == "error")
+			m_display->setError();
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing MMDVM at byte %d", ex.byte);
+	}
 }
 
 void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string mode = json["mode"];
-	int value        = json["value"];
+	try {
+		std::string mode = json["mode"];
+		int value        = json["value"];
 
-	if (mode == "D-Star") {
-		m_display->writeDStarRSSI(value);
-	} else if (mode == "DMR") {
-		int slot = json["slot"];
-		m_display->writeDMRRSSI(slot, value);
-	} else if (mode == "YSF") {
-		m_display->writeFusionRSSI(value);
-	} else if (mode == "P25") {
-		m_display->writeP25RSSI(value);
-	} else if (mode == "NXDN") {
-		m_display->writeNXDNRSSI(value);
-	} else if (mode == "FM") {
-		m_display->writeFMRSSI(value);
+		if (mode == "D-Star") {
+			m_display->writeDStarRSSI(value);
+		} else if (mode == "DMR") {
+			int slot = json["slot"];
+			m_display->writeDMRRSSI(slot, value);
+		} else if (mode == "YSF") {
+			m_display->writeFusionRSSI(value);
+		} else if (mode == "P25") {
+			m_display->writeP25RSSI(value);
+		} else if (mode == "NXDN") {
+			m_display->writeNXDNRSSI(value);
+		} else if (mode == "FM") {
+			m_display->writeFMRSSI(value);
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing RSSI at byte %d", ex.byte);
 	}
 }
 
@@ -563,20 +586,25 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string mode = json["mode"];
-	float value      = json["value"];
+	try {
+		std::string mode = json["mode"];
+		float value      = json["value"];
 
-	if (mode == "D-Star") {
-		m_display->writeDStarBER(value);
-	} else if (mode == "DMR") {
-		int slot = json["slot"];
-		m_display->writeDMRBER(slot, value);
-	} else if (mode == "YSF") {
-		m_display->writeFusionBER(value);
-	} else if (mode == "P25") {
-		m_display->writeP25BER(value);
-	} else if (mode == "NXDN") {
-		m_display->writeNXDNBER(value);
+		if (mode == "D-Star") {
+			m_display->writeDStarBER(value);
+		} else if (mode == "DMR") {
+			int slot = json["slot"];
+			m_display->writeDMRBER(slot, value);
+		} else if (mode == "YSF") {
+			m_display->writeFusionBER(value);
+		} else if (mode == "P25") {
+			m_display->writeP25BER(value);
+		} else if (mode == "NXDN") {
+			m_display->writeNXDNBER(value);
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing BER at byte %d", ex.byte);
 	}
 }
 
@@ -584,14 +612,19 @@ void CDisplayDriver::parseText(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string mode = json["mode"];
-	if (mode == "D-Star") {
-		std::string value = json["value"];
-		m_display->writeDStarText(value);
-	} else if (mode == "DMR") {
-		int slot          = json["slot"];
-		std::string value = json["value"];
-		m_display->writeDMRTA(slot, value);
+	try {
+		std::string mode = json["mode"];
+		if (mode == "D-Star") {
+			std::string value = json["value"];
+			m_display->writeDStarText(value);
+		} else if (mode == "DMR") {
+			int slot          = json["slot"];
+			std::string value = json["value"];
+			m_display->writeDMRTA(slot, value);
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing Text at byte %d", ex.byte);
 	}
 }
 
@@ -599,17 +632,22 @@ void CDisplayDriver::parseDStar(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		std::string source_cs      = json["source_cs"];
-		std::string source_ext     = json["source_ext"];
-		std::string destination_cs = json["destination_cs"];
-		std::string reflector      = json["reflector"];
-		std::string source         = json["source"] == "rf" ? "R" : "N";
+	try {
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			std::string source_cs      = json["source_cs"];
+			std::string source_ext     = json["source_ext"];
+			std::string destination_cs = json["destination_cs"];
+			std::string reflector      = json["reflector"];
+			std::string source         = json["source"] == "rf" ? "R" : "N";
 
-		m_display->writeDStar(source_cs, source_ext, destination_cs, source, reflector);
-	} else if (action == "end" || action == "lost") {
-		m_display->clearDStar();
+			m_display->writeDStar(source_cs, source_ext, destination_cs, source, reflector);
+		} else if (action == "end" || action == "lost") {
+			m_display->clearDStar();
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing D-Star at byte %d", ex.byte);
 	}
 }
 
@@ -617,19 +655,24 @@ void CDisplayDriver::parseDMR(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		int slot                     = json["slot"];
-		std::string source_info      = json["source_info"];
-		int destination_id           = json["destination_id"];
-		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"] == "rf" ? "R" : "N";
+	try {
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			int slot                     = json["slot"];
+			std::string source_info      = json["source_info"];
+			int destination_id           = json["destination_id"];
+			std::string destination_type = json["destination_type"];
+			std::string source           = json["source"] == "rf" ? "R" : "N";
 
-		bool group = destination_type == "group";
-		m_display->writeDMR(slot, source_info, group, destination_id, source);
-	} else if (action == "end" || action == "lost") {
-		int slot = json["slot"];
-		m_display->clearDMR(slot);
+			bool group = destination_type == "group";
+			m_display->writeDMR(slot, source_info, group, destination_id, source);
+		} else if (action == "end" || action == "lost") {
+			int slot = json["slot"];
+			m_display->clearDMR(slot);
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing DMR at byte %d", ex.byte);
 	}
 }
 
@@ -637,16 +680,21 @@ void CDisplayDriver::parseYSF(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		std::string source_cs = json["source_cs"];
-		int dgId              = json["dg-id"];
-		std::string reflector = json["reflector"];
-		std::string source    = json["source"] == "rf" ? "R" : "N";
+	try {
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			std::string source_cs = json["source_cs"];
+			int dgId              = json["dg-id"];
+			std::string reflector = json["reflector"];
+			std::string source    = json["source"] == "rf" ? "R" : "N";
 
-		m_display->writeFusion(source_cs, "ALL", dgId, source, reflector);
-	} else if (action == "end" || action == "lost") {
-		m_display->clearFusion();
+			m_display->writeFusion(source_cs, "ALL", dgId, source, reflector);
+		} else if (action == "end" || action == "lost") {
+			m_display->clearFusion();
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing YSF at byte %d", ex.byte);
 	}
 }
 
@@ -654,17 +702,22 @@ void CDisplayDriver::parseP25(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		std::string source_info      = json["source_info"];
-		int destination_id           = json["destination_id"];
-		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"] == "rf" ? "R" : "N";
+	try {
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			std::string source_info      = json["source_info"];
+			int destination_id           = json["destination_id"];
+			std::string destination_type = json["destination_type"];
+			std::string source           = json["source"] == "rf" ? "R" : "N";
 
-		bool group = destination_type == "group";
-		m_display->writeP25(source_info, group, destination_id, source);
-	} else if (action == "end" || action == "lost") {
-		m_display->clearP25();
+			bool group = destination_type == "group";
+			m_display->writeP25(source_info, group, destination_id, source);
+		} else if (action == "end" || action == "lost") {
+			m_display->clearP25();
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing P25 at byte %d", ex.byte);
 	}
 }
 
@@ -672,17 +725,22 @@ void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string action = json["action"];
-	if (action == "start" || action == "late_entry") {
-		std::string source_info      = json["source_info"];
-		int destination_id           = json["destination_id"];
-		std::string destination_type = json["destination_type"];
-		std::string source           = json["source"] == "rf" ? "R" : "N";
+	try {
+		std::string action = json["action"];
+		if (action == "start" || action == "late_entry") {
+			std::string source_info      = json["source_info"];
+			int destination_id           = json["destination_id"];
+			std::string destination_type = json["destination_type"];
+			std::string source           = json["source"] == "rf" ? "R" : "N";
 
-		bool group = destination_type == "group";
-		m_display->writeNXDN(source_info, group, destination_id, source);
-	} else if (action == "end" || action == "lost") {
-		m_display->clearNXDN();
+			bool group = destination_type == "group";
+			m_display->writeNXDN(source_info, group, destination_id, source);
+		} else if (action == "end" || action == "lost") {
+			m_display->clearNXDN();
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing NXDN at byte %d", ex.byte);
 	}
 }
 
@@ -690,13 +748,18 @@ void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string functional = json["functional"];
-	if (functional == "end") {
-		m_display->clearPOCSAG();
-	} else {
-		int ric             = json["ric"];
-		std::string message = json["message"];
-		m_display->writePOCSAG(ric, message);
+	try {
+		std::string functional = json["functional"];
+		if (functional == "end") {
+			m_display->clearPOCSAG();
+		} else {
+			int ric             = json["ric"];
+			std::string message = json["message"];
+			m_display->writePOCSAG(ric, message);
+		}
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing POCSAG at byte %d", ex.byte);
 	}
 }
 
@@ -704,28 +767,33 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 {
 	assert(m_display != nullptr);
 
-	std::string state = json["state"];
+	try {
+		std::string state = json["state"];
 
-	if (state == "listening")
-		m_display->clearFM();
-	else if (state == "kerchunk_rf")
-		m_display->writeFM("R: Kerchunk");
-	else if (state == "relaying_rf")
-		m_display->writeFM("R: Relaying");
-	else if (state == "relaying_wait_rf" || state == "timeout_wait_rf" || state == "hang")
-		m_display->writeFM("R: Wait");
-	else if (state == "timeout_rf")
-		m_display->writeFM("R: Timeout");
-	else if (state == "kerchunk_ext")
-		m_display->writeFM("N: Kerchunk");
-	else if (state == "relaying_ext")
-		m_display->writeFM("N: Relaying");
-	else if (state == "relaying_wait_ext" || state == "timeout_wait_ext")
-		m_display->writeFM("N: Wait");
-	else if (state == "timeout_ext")
-		m_display->writeFM("N: Timeout");
-	else
-		m_display->writeFM(state);
+		if (state == "listening")
+			m_display->clearFM();
+		else if (state == "kerchunk_rf")
+			m_display->writeFM("R: Kerchunk");
+		else if (state == "relaying_rf")
+			m_display->writeFM("R: Relaying");
+		else if (state == "relaying_wait_rf" || state == "timeout_wait_rf" || state == "hang")
+			m_display->writeFM("R: Wait");
+		else if (state == "timeout_rf")
+			m_display->writeFM("R: Timeout");
+		else if (state == "kerchunk_ext")
+			m_display->writeFM("N: Kerchunk");
+		else if (state == "relaying_ext")
+			m_display->writeFM("N: Relaying");
+		else if (state == "relaying_wait_ext" || state == "timeout_wait_ext")
+			m_display->writeFM("N: Wait");
+		else if (state == "timeout_ext")
+			m_display->writeFM("N: Timeout");
+		else
+			m_display->writeFM(state);
+	}
+	catch (nlohmann::json::parse_error& ex) {
+		LogError("Error parsing FM at byte %d", ex.byte);
+	}
 }
 
 void CDisplayDriver::onDisplay(const unsigned char* data, unsigned int length)
