@@ -25,6 +25,7 @@
 #include "Nextion.h"
 #include "Version.h"
 #include "Defines.h"
+#include "Dummy.h"
 #include "Thread.h"
 #include "Utils.h"
 #include "Conf.h"
@@ -277,10 +278,10 @@ bool CDisplayDriver::createDisplay()
 	LogInfo("Display Parameters");
 	LogInfo("    Type: %s", type.c_str());
 
-	if (type == "TFT Surenoo") {
-		std::string port          = m_conf.getTFTSerialPort();
-		unsigned int brightness   = m_conf.getTFTSerialBrightness();
-		unsigned int screenLayout = m_conf.getTFTSerialScreenLayout();
+	if (type == "TFTSurenoo") {
+		std::string port          = m_conf.getTFTSurenooPort();
+		unsigned int brightness   = m_conf.getTFTSurenooBrightness();
+		unsigned int screenLayout = m_conf.getTFTSurenooScreenLayout();
 
 		LogInfo("    Port: %s", port.c_str());
 		LogInfo("    Brightness: %u", brightness);
@@ -411,6 +412,8 @@ bool CDisplayDriver::createDisplay()
 
 		m_display = new COLED(m_conf.getCallsign(), m_conf.getId(), m_conf.getDuplex(), type, brightness, invert, scroll, rotate, logosaver);
 #endif
+	} else if (type == "Dummy") {
+		m_display = new CDummy;
 	} else {
 		LogError("No valid display found");
 		return false;

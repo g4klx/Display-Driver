@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -51,10 +51,10 @@ public:
 	std::string    getMQTTUsername() const;
 	std::string    getMQTTPassword() const;
 
-	// The TFTSERIAL section
-	std::string  getTFTSerialPort() const;
-	unsigned int getTFTSerialBrightness() const;
-	unsigned int getTFTSerialScreenLayout() const;
+	// The TFT Surenoo section
+	std::string  getTFTSurenooPort() const;
+	unsigned int getTFTSurenooBrightness() const;
+	unsigned int getTFTSurenooScreenLayout() const;
 
 	// The HD44780 section
 	unsigned int getHD44780Rows() const;
@@ -113,9 +113,9 @@ private:
 	std::string  m_mqttUsername;
 	std::string  m_mqttPassword;
 
-	std::string  m_tftSerialPort;
-	unsigned int m_tftSerialBrightness;
-	unsigned int m_tftSerialScreenLayout;
+	std::string  m_tftSurenooPort;
+	unsigned int m_tftSurenooBrightness;
+	unsigned int m_tftSurenooScreenLayout;
 
 	unsigned int m_hd44780Rows;
 	unsigned int m_hd44780Columns;

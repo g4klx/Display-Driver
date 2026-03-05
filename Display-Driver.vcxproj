@@ -171,6 +171,7 @@
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DisplayDriver.h" />
+    <ClInclude Include="Dummy.h" />
     <ClInclude Include="HD44780.h" />
     <ClInclude Include="LCDproc.h" />
     <ClInclude Include="Log.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DisplayDriver.cpp" />
+    <ClCompile Include="Dummy.cpp" />
     <ClCompile Include="HD44780.cpp" />
     <ClCompile Include="LCDproc.cpp" />
     <ClCompile Include="Log.cpp" />

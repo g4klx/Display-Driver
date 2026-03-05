@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015-2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015-2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ enum class SECTION {
 	GENERAL,
 	LOG,
 	MQTT,
-	TFTSERIAL,
+	TFT_SURENOO,
 	HD44780,
 	NEXTION,
 	OLED,
@@ -55,9 +55,9 @@ m_mqttName("display-driver"),
 m_mqttAuthEnabled(false),
 m_mqttUsername(),
 m_mqttPassword(),
-m_tftSerialPort("/dev/ttyAMA0"),
-m_tftSerialBrightness(50U),
-m_tftSerialScreenLayout(0U),
+m_tftSurenooPort("/dev/ttyAMA0"),
+m_tftSurenooBrightness(50U),
+m_tftSurenooScreenLayout(0U),
 m_hd44780Rows(2U),
 m_hd44780Columns(16U),
 m_hd44780Pins(),
@@ -116,8 +116,8 @@ bool CConf::read()
 				section = SECTION::LOG;
 			else if (::strncmp(buffer, "[MQTT]", 6U) == 0)
 				section = SECTION::MQTT;
-			else if (::strncmp(buffer, "[TFT Serial]", 12U) == 0)
-				section = SECTION::TFTSERIAL;
+			else if (::strncmp(buffer, "[TFT Surenoo]", 13U) == 0)
+				section = SECTION::TFT_SURENOO;
 			else if (::strncmp(buffer, "[HD44780]", 9U) == 0)
 				section = SECTION::HD44780;
 			else if (::strncmp(buffer, "[Nextion]", 9U) == 0)
@@ -193,13 +193,13 @@ bool CConf::read()
 				m_mqttUsername = value;
 			else if (::strcmp(key, "Password") == 0)
 				m_mqttPassword = value;
-		} else if (section == SECTION::TFTSERIAL) {
+		} else if (section == SECTION::TFT_SURENOO) {
 			if (::strcmp(key, "Port") == 0)
-				m_tftSerialPort = value;
+				m_tftSurenooPort = value;
 			else if (::strcmp(key, "Brightness") == 0)
-				m_tftSerialBrightness = (unsigned int)::atoi(value);
+				m_tftSurenooBrightness = (unsigned int)::atoi(value);
 			else if (::strcmp(key, "ScreenLayout") == 0)
-				m_tftSerialScreenLayout = (unsigned int)::atoi(value);
+				m_tftSurenooScreenLayout = (unsigned int)::atoi(value);
 		} else if (section == SECTION::HD44780) {
 			if (::strcmp(key, "Rows") == 0)
 				m_hd44780Rows = (unsigned int)::atoi(value);
@@ -351,19 +351,19 @@ std::string CConf::getMQTTPassword() const
 	return m_mqttPassword;
 }
 
-std::string CConf::getTFTSerialPort() const
+std::string CConf::getTFTSurenooPort() const
 {
-	return m_tftSerialPort;
+	return m_tftSurenooPort;
 }
 
-unsigned int CConf::getTFTSerialBrightness() const
+unsigned int CConf::getTFTSurenooBrightness() const
 {
-	return m_tftSerialBrightness;
+	return m_tftSurenooBrightness;
 }
 
-unsigned int CConf::getTFTSerialScreenLayout() const
+unsigned int CConf::getTFTSurenooScreenLayout() const
 {
-	return m_tftSerialScreenLayout;
+	return m_tftSurenooScreenLayout;
 }
 
 unsigned int CConf::getHD44780Rows() const

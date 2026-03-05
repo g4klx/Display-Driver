@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2022,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -167,12 +167,16 @@ void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 			if (rc != MOSQ_ERR_SUCCESS) {
 				::fprintf(stderr, "MQTT: error subscribing to %s - %s\n", topicEx, ::mosquitto_strerror(rc));
 				::mosquitto_disconnect(mosq);
+			} else {
+				::fprintf(stdout, "MQTT: subscribed to %s\n", topicEx);
 			}
 		} else {
 			rc = ::mosquitto_subscribe(mosq, nullptr, topic.c_str(), static_cast<int>(p->m_qos));
 			if (rc != MOSQ_ERR_SUCCESS) {
 				::fprintf(stderr, "MQTT: error subscribing to %s - %s\n", topic.c_str(), ::mosquitto_strerror(rc));
 				::mosquitto_disconnect(mosq);
+			} else {
+				::fprintf(stdout, "MQTT: subscribed to %s\n", topic.c_str());
 			}
 		}
 	}
