@@ -541,16 +541,20 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
-		std::string mode = json["mode"];
+		// We're only interested in the mode messages
+		bool hasMode = json.contains("mode");
+		if (hasMode) {
+			std::string mode = json["mode"];
 
-		if (mode == "idle")
-			m_display->setIdle();
-		else if (mode == "CW")
-			m_display->writeCW();
-		else if (mode == "lockout") 
-			m_display->setLockout();
-		else if (mode == "error")
-			m_display->setError();
+			if (mode == "idle")
+				m_display->setIdle();
+			else if (mode == "CW")
+				m_display->writeCW();
+			else if (mode == "lockout") 
+				m_display->setLockout();
+			else if (mode == "error")
+				m_display->setError();
+		}
 	}
 	catch (nlohmann::json::parse_error& ex) {
 		LogError("Error parsing MMDVM at byte %d", ex.byte);
