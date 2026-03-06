@@ -200,14 +200,9 @@ void CMQTTConnection::onMessage(mosquitto* mosq, void* obj, const mosquitto_mess
 
 	CMQTTConnection* p = static_cast<CMQTTConnection*>(obj);
 
-	for (std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>>::const_iterator it = p->m_subs.cbegin(); it != p->m_subs.cend(); ++it) {
-		std::string topic = (*it).first;
-
-		char topicEx[100U];
-		::sprintf(topicEx, "%s/%s", p->m_name.c_str(), topic.c_str());
-
-		if (::strcmp(topicEx, message->topic) == 0) {
-			(*it).second((unsigned char*)message->payload, message->payloadlen);
+	for (const auto& it : p->m_subs) {
+		if (::strcmp(it.first.c_str(), message->topic) == 0) {
+			it.second((unsigned char*)message->payload, message->payloadlen);
 			break;
 		}
 	}
