@@ -54,10 +54,11 @@ m_idleBrightness(idleBrightness),
 m_screenLayout(0),
 m_clockDisplayTimer(1000U, 0U, 400U),
 m_displayTempInF(displayTempInF),
-m_output(200U, "Nextion buffer"),
+m_output(2000U, "Nextion buffer"),
 m_mutex(),
 m_reply(nullptr),
-m_waiting(false)
+m_waiting(false),
+m_waitingTimer(1000U, 0U, 500U)
 {
 	assert(serial != nullptr);
 	assert(brightness >= 0U && brightness <= 100U);
@@ -734,21 +735,35 @@ void CNextion::clockInt(unsigned int ms)
 	// Update the clock display in IDLE mode every 400ms
 	m_clockDisplayTimer.clock(ms);
 	if (m_displayClock && (m_mode == MODE_IDLE || m_mode == MODE_CW) && m_clockDisplayTimer.isRunning() && m_clockDisplayTimer.hasExpired()) {
-		time_t currentTime;
-		struct tm *Time;
-		::time(&currentTime);                   // Get the current time
+		// Skip clock update if the output buffer is more than half full.
+		// Over MQTT the drain rate is much slower than direct serial, so
+		// piling on timer commands can cause buffer overflow.
+		if (m_output.freeSpace() > 100U) {
+			time_t currentTime;
+			struct tm *Time;
+			::time(&currentTime);                   // Get the current time
 
-		if (m_utc)
-			Time = ::gmtime(&currentTime);
-		else
-			Time = ::localtime(&currentTime);
+			if (m_utc)
+				Time = ::gmtime(&currentTime);
+			else
+				Time = ::localtime(&currentTime);
 
-		::setlocale(LC_TIME,"");
-		char text[50U];
-		::strftime(text, 50, "t2.txt=\"%x %X\"", Time);
-		sendCommand(text);
+			::setlocale(LC_TIME,"");
+			char text[50U];
+			::strftime(text, 50, "t2.txt=\"%x %X\"", Time);
+			sendCommand(text);
+		}
 
 		m_clockDisplayTimer.start(); // restart the clock display timer
+	}
+
+	// Timeout stale waits — over MQTT, responses can be lost or delayed.
+	// Without this, m_waiting stays true forever and the queue never drains.
+	m_waitingTimer.clock(ms);
+	if (m_waiting && m_waitingTimer.isRunning() && m_waitingTimer.hasExpired()) {
+		LogDebug("Nextion response timeout, resuming queue");
+		m_waiting = false;
+		m_waitingTimer.stop();
 	}
 
 	unsigned char c;
@@ -788,6 +803,7 @@ void CNextion::clockInt(unsigned int ms)
 			}
 
 			m_waiting = false;
+			m_waitingTimer.stop();
 			break;
 		}
 	}
@@ -809,6 +825,7 @@ void CNextion::clockInt(unsigned int ms)
 			m_serial->write(buffer, len);
 
 			m_waiting = true;
+			m_waitingTimer.start();
 		}
 	}
 }

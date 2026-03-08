@@ -23,6 +23,12 @@
 #include <cstring>
 #include <ctime>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 CMQTTConnection::CMQTTConnection(const std::string& host, unsigned short port, const std::string& name, const bool authEnabled, const std::string& username, const std::string& password, const std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>>& subs, unsigned int keepalive, MQTT_QOS qos) :
 m_host(host),
 m_port(port),
@@ -52,7 +58,11 @@ CMQTTConnection::~CMQTTConnection()
 bool CMQTTConnection::open()
 {
 	char name[50U];
-	::sprintf(name, "Display-Driver.%ld", ::time(nullptr));
+#if defined(_WIN32) || defined(_WIN64)
+	::sprintf(name, "Display-Driver.%u", (unsigned)::_getpid());
+#else
+	::sprintf(name, "Display-Driver.%u", (unsigned)::getpid());
+#endif
 
 	::fprintf(stdout, "Display-Driver (%s) connecting to MQTT as %s\n", m_name.c_str(), name);
 
@@ -75,15 +85,6 @@ bool CMQTTConnection::open()
 		::mosquitto_destroy(m_mosq);
 		m_mosq = nullptr;
 		::fprintf(stderr, "MQTT Error connecting: %s\n", ::mosquitto_strerror(rc));
-		return false;
-	}
-
-	rc = ::mosquitto_loop_start(m_mosq);
-	if (rc != MOSQ_ERR_SUCCESS) {
-		::mosquitto_disconnect(m_mosq);
-		::mosquitto_destroy(m_mosq);
-		m_mosq = nullptr;
-		::fprintf(stderr, "MQTT Error loop starting: %s\n", ::mosquitto_strerror(rc));
 		return false;
 	}
 
@@ -131,6 +132,25 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 	}
 
 	return true;
+}
+
+int CMQTTConnection::loop()
+{
+	if (m_mosq == nullptr)
+		return -1;
+
+	int rc = ::mosquitto_loop(m_mosq, 0, 1);
+	if (rc != MOSQ_ERR_SUCCESS && rc != MOSQ_ERR_NO_CONN) {
+		// Connection lost — try to reconnect.
+		::mosquitto_reconnect(m_mosq);
+	}
+
+	return rc;
+}
+
+bool CMQTTConnection::isConnected() const
+{
+	return m_connected;
 }
 
 void CMQTTConnection::close()
