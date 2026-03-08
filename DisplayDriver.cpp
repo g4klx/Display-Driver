@@ -234,6 +234,13 @@ int CDisplayDriver::run()
 		return 1;
 	}
 
+	// Pump the MQTT loop until connected (CONNACK received) so that
+	// the display startup commands don't get silently dropped.
+	for (unsigned int i = 0U; i < 50U && !m_mqtt->isConnected(); i++) {
+		m_mqtt->loop();
+		CThread::sleep(100U);
+	}
+
 #if !defined(_WIN32) && !defined(_WIN64)
 	if (m_daemon) {
 		::close(STDIN_FILENO);
@@ -257,6 +264,12 @@ int CDisplayDriver::run()
 		stopWatch.start();
 
 		m_display->clock(ms);
+
+		// Drive MQTT I/O from the main loop (non-threaded) to
+		// avoid the auto-reconnect race that causes client ID
+		// collisions and a connect/disconnect loop.
+		if (m_mqtt != nullptr)
+			m_mqtt->loop();
 
 		if (ms < 10U)
 			CThread::sleep(10U);
