@@ -3,9 +3,12 @@
 
 CC      = cc
 CXX     = c++
-CFLAGS  = -g -O3 -Wall -std=c++0x -pthread -I/usr/local/include
+CFLAGS  = -g -O3 -Wall -std=c++0x -MMD -MD -pthread -I/usr/local/include
 LIBS    = -lpthread -lutil -lmosquitto
 LDFLAGS = -g -L/usr/local/lib
+
+SRCS = $(wildcard *.cpp)
+DEPS = $(SRCS:.cpp=.d)
 
 # This makefile is for use with the Raspberry Pi when using an HD44780 compatible display. The wiringpi library is needed.
 # Support for the Adafruit i2c 16 x 2 RGB LCD Pi Plate
@@ -25,22 +28,23 @@ LDFLAGS = -g -L/usr/local/lib
 #CFLAGS  = -g -O3 -Wall -std=c++0x -pthread -DUSE_HD44780 -DUSE_PCF8574_DISPLAY -I/usr/local/include
 #LIBS    = -lwiringPi -lwiringPiDev -lpthread -lutil -lmosquitto
 
-OBJECTS1 =	Conf.o Display.o DisplayDriver.o Dummy.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NetworkInfo.o \
-		Nextion.o OLED.o SerialPort.o StopWatch.o TFTSurenoo.o Thread.o Timer.o UARTController.o Utils.o
+OBJS1 =	Conf.o Display.o DisplayDriver.o Dummy.o HD44780.o LCDproc.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NetworkInfo.o \
+	Nextion.o OLED.o SerialPort.o StopWatch.o TFTSurenoo.o Thread.o Timer.o UARTController.o Utils.o
 
-OBJECTS2 =	Conf.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NextionUpdater.o SerialPort.o StopWatch.o Thread.o Timer.o \
-		UARTController.o Utils.o
+OBJS2 =	Conf.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NextionUpdater.o SerialPort.o StopWatch.o Thread.o Timer.o \
+	UARTController.o Utils.o
 
 all:		DisplayDriver NextionUpdater
 
-DisplayDriver:	$(OBJECTS1) 
-		$(CXX) $(OBJECTS1) $(CFLAGS) $(LIBS) -o DisplayDriver
+DisplayDriver:	$(OBJS1) 
+		$(CXX) $(OBJS1) $(CFLAGS) $(LIBS) -o DisplayDriver
 
-NextionUpdater:	$(OBJECTS2) 
-		$(CXX) $(OBJECTS2) $(CFLAGS) $(LIBS) -o NextionUpdater
+NextionUpdater:	$(OBJS2) 
+		$(CXX) $(OBJS2) $(CFLAGS) $(LIBS) -o NextionUpdater
 
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
+-include $(DEPS)
 
 DisplayDriver.o: GitVersion.h FORCE
 NextionUpdater.o: GitVersion.h FORCE
