@@ -467,85 +467,74 @@ void CDisplayDriver::readJSON(const std::string& text)
 	try {
 		nlohmann::json j = nlohmann::json::parse(text);
 
-		bool exists = j["MMDVM"].is_object();
-		if (exists) {
+		if (j.contains("MMDVM") && j["MMDVM"].is_object()) {
 			LogDebug("Identified as an MMDVM message");
 			parseMMDVM(j["MMDVM"]);
 			return;
 		}
 
-		exists = j["RSSI"].is_object();
-		if (exists) {
+		if (j.contains("RSSI") && j["RSSI"].is_object()) {
 			LogDebug("Identified as an RSSI message");
 			parseRSSI(j["RSSI"]);
 			return;
 		}
 
-		exists = j["BER"].is_object();
-		if (exists) {
+		if (j.contains("BER") && j["BER"].is_object()) {
 			LogDebug("Identified as a BER message");
 			parseBER(j["BER"]);
 			return;
 		}
 
-		exists = j["Text"].is_object();
-		if (exists) {
+		if (j.contains("Text") && j["Text"].is_object()) {
 			LogDebug("Identified as a Text message");
 			parseText(j["Text"]);
 			return;
 		}
 
-		exists = j["D-Star"].is_object();
-		if (exists) {
+		if (j.contains("D-Star") && j["D-Star"].is_object()) {
 			LogDebug("Identified as a D-Star message");
 			parseDStar(j["D-Star"]);
 			return;
 		}
 
-		exists = j["DMR"].is_object();
-		if (exists) {
+		if (j.contains("DMR") && j["DMR"].is_object()) {
 			LogDebug("Identified as a DMR message");
 			parseDMR(j["DMR"]);
 			return;
 		}
 
-		exists = j["YSF"].is_object();
-		if (exists) {
+		if (j.contains("YSF") && j["YSF"].is_object()) {
 			LogDebug("Identified as a YSF message");
 			parseYSF(j["YSF"]);
 			return;
 		}
 
-		exists = j["P25"].is_object();
-		if (exists) {
+		if (j.contains("P25") && j["P25"].is_object()) {
 			LogDebug("Identified as a P25 message");
 			parseP25(j["P25"]);
 			return;
 		}
 
-		exists = j["NXDN"].is_object();
-		if (exists) {
+		if (j.contains("NXDN") && j["NXDN"].is_object()) {
 			LogDebug("Identified as an NXDN message");
 			parseNXDN(j["NXDN"]);
 			return;
 		}
 
-		exists = j["POCSAG"].is_object();
-		if (exists) {
+		if (j.contains("POCSAG") && j["POCSAG"].is_object()) {
 			LogDebug("Identified as a POCSAG message");
 			parsePOCSAG(j["POCSAG"]);
 			return;
 		}
 
-		exists = j["FM"].is_object();
-		if (exists) {
+		if (j.contains("FM") && j["FM"].is_object()) {
 			LogDebug("Identified as an FM message");
 			parseFM(j["FM"]);
 			return;
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing: \"%s\" at byte %d", text.c_str(), ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing: \"%s\" - %s", text.c_str(), ex.what());
 	}
 }
 
@@ -569,8 +558,8 @@ void CDisplayDriver::parseMMDVM(const nlohmann::json& json)
 				m_display->setError();
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing MMDVM at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing MMDVM - %s", ex.what());
 	}
 }
 
@@ -579,12 +568,17 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("mode") || !json.contains("value"))
+			return;
+
 		std::string mode = json["mode"];
 		int value        = json["value"];
 
 		if (mode == "D-Star") {
 			m_display->writeDStarRSSI(value);
 		} else if (mode == "DMR") {
+			if (!json.contains("slot"))
+				return;
 			int slot = json["slot"];
 			m_display->writeDMRRSSI(slot, value);
 		} else if (mode == "YSF") {
@@ -597,8 +591,8 @@ void CDisplayDriver::parseRSSI(const nlohmann::json& json)
 			m_display->writeFMRSSI(value);
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing RSSI at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing RSSI - %s", ex.what());
 	}
 }
 
@@ -607,12 +601,17 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("mode") || !json.contains("value"))
+			return;
+
 		std::string mode = json["mode"];
 		float value      = json["value"];
 
 		if (mode == "D-Star") {
 			m_display->writeDStarBER(value);
 		} else if (mode == "DMR") {
+			if (!json.contains("slot"))
+				return;
 			int slot = json["slot"];
 			m_display->writeDMRBER(slot, value);
 		} else if (mode == "YSF") {
@@ -623,8 +622,8 @@ void CDisplayDriver::parseBER(const nlohmann::json& json)
 			m_display->writeNXDNBER(value);
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing BER at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing BER - %s", ex.what());
 	}
 }
 
@@ -633,18 +632,23 @@ void CDisplayDriver::parseText(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("mode") || !json.contains("value"))
+			return;
+
 		std::string mode = json["mode"];
 		if (mode == "D-Star") {
 			std::string value = json["value"];
 			m_display->writeDStarText(value);
 		} else if (mode == "DMR") {
+			if (!json.contains("slot"))
+				return;
 			int slot          = json["slot"];
 			std::string value = json["value"];
 			m_display->writeDMRTA(slot, value);
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing Text at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing Text - %s", ex.what());
 	}
 }
 
@@ -653,12 +657,19 @@ void CDisplayDriver::parseDStar(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("action"))
+			return;
+
 		std::string action = json["action"];
 		if (action == "start" || action == "late_entry") {
+			if (!json.contains("source_cs") || !json.contains("source_ext") ||
+			    !json.contains("destination_cs") || !json.contains("source"))
+				return;
+
 			std::string source_cs      = json["source_cs"];
 			std::string source_ext     = json["source_ext"];
 			std::string destination_cs = json["destination_cs"];
-			std::string reflector      = json["reflector"];
+			std::string reflector      = json.value("reflector", std::string());
 			std::string source         = json["source"] == "rf" ? "R" : "N";
 
 			m_display->writeDStar(source_cs, source_ext, destination_cs, source, reflector);
@@ -666,8 +677,8 @@ void CDisplayDriver::parseDStar(const nlohmann::json& json)
 			m_display->clearDStar();
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing D-Star at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing D-Star - %s", ex.what());
 	}
 }
 
@@ -676,10 +687,17 @@ void CDisplayDriver::parseDMR(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("action"))
+			return;
+
 		std::string action = json["action"];
 		if (action == "start" || action == "late_entry") {
+			if (!json.contains("slot") || !json.contains("destination_id") ||
+			    !json.contains("destination_type") || !json.contains("source"))
+				return;
+
 			int slot                     = json["slot"];
-			std::string source_info      = json["source_info"];
+			std::string source_info      = json.value("source_info", std::string());
 			int destination_id           = json["destination_id"];
 			std::string destination_type = json["destination_type"];
 			std::string source           = json["source"] == "rf" ? "R" : "N";
@@ -687,12 +705,14 @@ void CDisplayDriver::parseDMR(const nlohmann::json& json)
 			bool group = destination_type == "group";
 			m_display->writeDMR(slot, source_info, group, destination_id, source);
 		} else if (action == "end" || action == "lost") {
+			if (!json.contains("slot"))
+				return;
 			int slot = json["slot"];
 			m_display->clearDMR(slot);
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing DMR at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing DMR - %s", ex.what());
 	}
 }
 
@@ -701,11 +721,18 @@ void CDisplayDriver::parseYSF(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("action"))
+			return;
+
 		std::string action = json["action"];
 		if (action == "start" || action == "late_entry") {
+			if (!json.contains("source_cs") || !json.contains("dg-id") ||
+			    !json.contains("source"))
+				return;
+
 			std::string source_cs = json["source_cs"];
 			int dgId              = json["dg-id"];
-			std::string reflector = json["reflector"];
+			std::string reflector = json.value("reflector", std::string());
 			std::string source    = json["source"] == "rf" ? "R" : "N";
 
 			m_display->writeFusion(source_cs, "ALL", dgId, source, reflector);
@@ -713,8 +740,8 @@ void CDisplayDriver::parseYSF(const nlohmann::json& json)
 			m_display->clearFusion();
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing YSF at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing YSF - %s", ex.what());
 	}
 }
 
@@ -723,9 +750,16 @@ void CDisplayDriver::parseP25(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("action"))
+			return;
+
 		std::string action = json["action"];
 		if (action == "start" || action == "late_entry") {
-			std::string source_info      = json["source_info"];
+			if (!json.contains("destination_id") || !json.contains("destination_type") ||
+			    !json.contains("source"))
+				return;
+
+			std::string source_info      = json.value("source_info", std::string());
 			int destination_id           = json["destination_id"];
 			std::string destination_type = json["destination_type"];
 			std::string source           = json["source"] == "rf" ? "R" : "N";
@@ -736,8 +770,8 @@ void CDisplayDriver::parseP25(const nlohmann::json& json)
 			m_display->clearP25();
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing P25 at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing P25 - %s", ex.what());
 	}
 }
 
@@ -746,9 +780,16 @@ void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("action"))
+			return;
+
 		std::string action = json["action"];
 		if (action == "start" || action == "late_entry") {
-			std::string source_info      = json["source_info"];
+			if (!json.contains("destination_id") || !json.contains("destination_type") ||
+			    !json.contains("source"))
+				return;
+
+			std::string source_info      = json.value("source_info", std::string());
 			int destination_id           = json["destination_id"];
 			std::string destination_type = json["destination_type"];
 			std::string source           = json["source"] == "rf" ? "R" : "N";
@@ -759,8 +800,8 @@ void CDisplayDriver::parseNXDN(const nlohmann::json& json)
 			m_display->clearNXDN();
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing NXDN at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing NXDN - %s", ex.what());
 	}
 }
 
@@ -769,17 +810,22 @@ void CDisplayDriver::parsePOCSAG(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("functional"))
+			return;
+
 		std::string functional = json["functional"];
 		if (functional == "end") {
 			m_display->clearPOCSAG();
 		} else {
+			if (!json.contains("ric"))
+				return;
 			int ric             = json["ric"];
-			std::string message = json["message"];
+			std::string message = json.value("message", std::string());
 			m_display->writePOCSAG(ric, message);
 		}
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing POCSAG at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing POCSAG - %s", ex.what());
 	}
 }
 
@@ -788,6 +834,9 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 	assert(m_display != nullptr);
 
 	try {
+		if (!json.contains("state"))
+			return;
+
 		std::string state = json["state"];
 
 		if (state == "listening")
@@ -811,8 +860,8 @@ void CDisplayDriver::parseFM(const nlohmann::json& json)
 		else
 			m_display->writeFM(state);
 	}
-	catch (nlohmann::json::parse_error& ex) {
-		LogError("Error parsing FM at byte %d", ex.byte);
+	catch (nlohmann::json::exception& ex) {
+		LogError("Error parsing FM - %s", ex.what());
 	}
 }
 
