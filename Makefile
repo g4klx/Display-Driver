@@ -37,10 +37,10 @@ OBJS2 =	Conf.o Log.o MQTTConnection.o ModemSerialPort.o Mutex.o NextionUpdater.o
 all:		DisplayDriver NextionUpdater
 
 DisplayDriver:	$(OBJS1) 
-		$(CXX) $(OBJS1) $(CFLAGS) $(LIBS) -o DisplayDriver
+		$(CXX) $(OBJS1) $(LDFLAGS) $(LIBS) -o DisplayDriver
 
 NextionUpdater:	$(OBJS2) 
-		$(CXX) $(OBJS2) $(CFLAGS) $(LIBS) -o NextionUpdater
+		$(CXX) $(OBJS2) $(LDFLAGS) $(LIBS) -o NextionUpdater
 
 %.o: %.cpp
 		$(CXX) $(CFLAGS) -c -o $@ $<
